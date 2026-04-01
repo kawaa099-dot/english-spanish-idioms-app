@@ -212,11 +212,12 @@ def generate_distractors(correct_idiom, all_idioms):
     random.shuffle(options)
     return options
 
-def generate_ai_question_dynamic(all_idioms):
+def generate_ai_question_dynamic(all_idioms, examples_map):
     correct = random.choice(all_idioms)
-    sentence = generate_ai_sentence(correct)
+
+    sentence = generate_ai_sentence(correct, examples_map)
     options = generate_distractors(correct, all_idioms)
-    
+
     return {
         "question": sentence,
         "options": options,
