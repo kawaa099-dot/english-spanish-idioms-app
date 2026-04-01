@@ -223,13 +223,13 @@ def generate_distractors(correct_idiom, all_idioms):
 
 def generate_ai_question_dynamic(all_idioms, examples_map):
 
-    # Try multiple times to get a valid question
+    # ---------- 1. Try AI multiple times ----------
     for _ in range(5):
 
         correct = random.choice(all_idioms)
         sentence = generate_ai_sentence(correct, examples_map)
 
-        if sentence:  # ✅ only accept valid ones
+        if sentence:
             options = generate_distractors(correct, all_idioms)
 
             return {
@@ -237,7 +237,34 @@ def generate_ai_question_dynamic(all_idioms, examples_map):
                 "options": options,
                 "answer": correct
             }
-    raise ValueError("Failed to generate valid quiz question.")
+
+    # ---------- 2. FORCE DATASET FALLBACK ----------
+    for idiom in all_idioms:
+        examples = examples_map.get(idiom.lower(), [])
+
+        valid_examples = [
+            ex["en"] for ex in examples
+            if idiom.lower() in ex.get("en", "").lower()
+        ]
+
+        if valid_examples:
+            sentence = random.choice(valid_examples)
+            sentence = sentence.replace(idiom, "_____")
+
+            options = generate_distractors(idiom, all_idioms)
+
+            return {
+                "question": sentence,
+                "options": options,
+                "answer": idiom
+            }
+
+    # ---------- 3. LAST RESORT (never crash UI) ----------
+    return {
+        "question": "No question available right now. Try again.",
+        "options": all_idioms[:4],
+        "answer": all_idioms[0]
+    }
 
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
