@@ -112,7 +112,7 @@ elif mode == "Quiz time!":
     st.metric("XP", st.session_state.xp)
 
     if "quiz" not in st.session_state:
-        st.session_state.quiz = generate_ai_question_dynamic(idioms)
+        st.session_state.quiz = generate_ai_question_dynamic(idioms,examples_map)
 
     quiz = st.session_state.quiz
 
@@ -133,7 +133,7 @@ elif mode == "Quiz time!":
             st.error(f"Wrong! Correct answer: {quiz['answer']}")
 
     if st.button("New Question"):
-        st.session_state.quiz = generate_ai_question_dynamic(idioms)
+        st.session_state.quiz = generate_ai_question_dynamic(idioms, examples_map)
         st.rerun()
 
 # ANALYTICS
