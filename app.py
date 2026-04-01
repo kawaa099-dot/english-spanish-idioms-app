@@ -53,19 +53,52 @@ if mode == "Explore Idioms":
             add_favorite(conn, selected)
             st.success("Added to favorites!")
 
+
 # DETECT 
 
 elif mode == "Idioms in sentences":
     text = st.text_area("Write your text:")
+
     if st.button("Detect"):
         found = detect_idioms(text, idioms)
+        
         if not found:
             st.info("No idioms detected.")
         else:
+            # Highlight detected idioms in the text
+            highlighted_text = text
             for idiom in found:
-                st.markdown(f"### 🔹 {idiom}")
-                st.write("Meaning:", idiom_map[idiom])
-                st.write("Literal:", translate_literal(idiom))
+                highlighted_text = highlighted_text.replace(
+                    idiom,
+                    f"<span style='background-color: #ffff00; font-weight:bold'>{idiom}</span>"
+                )
+            st.markdown("### Your Text with Detected Idioms")
+            st.markdown(highlighted_text, unsafe_allow_html=True)
+            st.markdown("---")
+
+            # Show idiom details
+            for idiom in found:
+                with st.expander(f"🔹 {idiom}"):
+                    st.write("**Meaning:**", idiom_map[idiom])
+                    st.write("**Literal Translation:**", translate_literal(idiom))
+
+                    # Examples
+                    examples = examples_map.get(idiom.lower(), [])
+                    if examples:
+                        st.subheader("Examples:")
+                        for ex in examples[:2]:
+                            st.write("•", ex["en"])
+                    else:
+                        st.write("No examples available.")
+
+                    # Audio
+                    audio_file = generate_audio(idiom)
+                    st.audio(audio_file)
+
+                    # Practice button
+                    if st.button(f"Practice '{idiom}'"):
+                        st.session_state.quiz = generate_ai_question_dynamic([idiom])
+                        st.rerun()
 
 # QUIZ
 
