@@ -1,4 +1,6 @@
 import streamlit as st
+from utils import generate_ai_question_dynamic
+
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
     detect_idioms, translate_literal, build_examples_map, remove_favorite,
@@ -99,7 +101,7 @@ elif mode == "Quiz time!":
             st.error(f"Wrong! Correct answer: {quiz['answer']}")
 
     if st.button("New Question"):
-        st.session_state.quiz = generate_adaptive_quiz(conn, idiom_map, examples_map)
+        st.session_state.quiz = generate_ai_question_dynamic(idioms)
         st.rerun()
 
 # ANALYTICS
