@@ -1,3 +1,7 @@
-altair
-pandas
 streamlit
+gtts
+datasets
+transformers
+torch
+numpy
+pandas
