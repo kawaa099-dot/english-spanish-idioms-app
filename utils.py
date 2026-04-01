@@ -172,8 +172,9 @@ generator = load_generator()
 
 def generate_ai_sentence(idiom, examples_map):
     prompt = (
-        f"Write one natural English sentence using the idiom '{idiom}'. "
-        f"Replace the idiom with a blank (_____). Only output the sentence."
+        f"Write ONE natural, realistic English sentence using the idiom '{idiom}'. "
+        f"Replace the idiom with a blank (_____). "
+        f"Do NOT explain. Only output the sentence."
     )
 
     try:
@@ -183,25 +184,34 @@ def generate_ai_sentence(idiom, examples_map):
             do_sample=True,
             temperature=0.9
         )
-        text = result[0]['generated_text'].strip()
 
-        # Remove prompt if echoed
+        text = result[0]["generated_text"].strip()
+
+        # Remove prompt if model echoes it
         if prompt.lower() in text.lower():
             text = text.replace(prompt, "").strip()
 
-        # Check if valid
-        if "_____" in text and len(text) > 20:
+        # accept only GOOD outputs
+        if "_____" in text and len(text) > 25:
             return text
 
     except:
         pass
 
-    #FALLBACK → dataset example
+    # FALLBACK
     examples = examples_map.get(idiom.lower(), [])
-    if examples:
-        sentence = random.choice(examples)["en"]
-        return sentence.replace(idiom, "_____")
 
+    valid_examples = []
+    for ex in examples:
+        sentence = ex.get("en", "")
+        if idiom.lower() in sentence.lower():
+            valid_examples.append(sentence)
+
+    if valid_examples:
+        chosen = random.choice(valid_examples)
+        return chosen.replace(idiom, "_____")
+
+    return None
     
 
 def generate_distractors(correct_idiom, all_idioms):
@@ -212,16 +222,22 @@ def generate_distractors(correct_idiom, all_idioms):
     return options
 
 def generate_ai_question_dynamic(all_idioms, examples_map):
-    correct = random.choice(all_idioms)
 
-    sentence = generate_ai_sentence(correct, examples_map)
-    options = generate_distractors(correct, all_idioms)
+    # Try multiple times to get a valid question
+    for _ in range(5):
 
-    return {
-        "question": sentence,
-        "options": options,
-        "answer": correct
-    }
+        correct = random.choice(all_idioms)
+        sentence = generate_ai_sentence(correct, examples_map)
+
+        if sentence:  # ✅ only accept valid ones
+            options = generate_distractors(correct, all_idioms)
+
+            return {
+                "question": sentence,
+                "options": options,
+                "answer": correct
+            }
+    raise ValueError("Failed to generate valid quiz question.")
 
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
