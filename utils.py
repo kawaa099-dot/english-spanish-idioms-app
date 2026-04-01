@@ -9,7 +9,6 @@ import streamlit as st
 import random
 from functools import lru_cache
 from transformers import pipeline
-import random
 
 # LOAD IDIOMS
 @st.cache_data
@@ -165,7 +164,11 @@ def build_examples_map():
 # QUIZ GENERATION
 
 # Load once
-generator = pipeline("text-generation", model="google/flan-t5-base")
+@st.cache_resource
+def load_generator():
+    return pipeline("text-generation", model="google/flan-t5-base")
+
+generator = load_generator()
 
 def generate_ai_sentence(idiom):
     prompt = (
