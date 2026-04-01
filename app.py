@@ -1,10 +1,9 @@
 import streamlit as st
-from utils import generate_ai_question_dynamic
 
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
     detect_idioms, translate_literal, build_examples_map, remove_favorite,
-    generate_adaptive_quiz, update_analytics, get_learning_stats
+    generate_ai_question_dynamic, update_analytics, get_learning_stats
 )
 
 st.set_page_config(page_title="Idioms Learning App", layout="wide")
