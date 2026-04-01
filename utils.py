@@ -202,8 +202,7 @@ def generate_ai_sentence(idiom, examples_map):
         sentence = random.choice(examples)["en"]
         return sentence.replace(idiom, "_____")
 
-    #FINAL fallback
-    return f"I decided to _____."
+    
 
 def generate_distractors(correct_idiom, all_idioms):
     pool = [i for i in all_idioms if i != correct_idiom]
