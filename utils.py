@@ -172,17 +172,22 @@ generator = load_generator()
 
 def generate_ai_sentence(idiom):
     prompt = (
-        f"Create a natural English sentence using the idiom '{idiom}' "
-        "for a fill-in-the-blank quiz. Leave a blank where the idiom goes."
+        f"Write a natural English sentence using the idiom '{idiom}' "
+        "in context for a fill-in-the-blank quiz. Replace the idiom with a blank."
     )
-    result = generator(prompt, max_length=50, do_sample=True, temperature=0.8)
+    result = generator(prompt, max_new_tokens=50, do_sample=True, temperature=0.8)
     text = result[0]['generated_text']
 
-    # Replace idiom with blank if needed
+    # If AI echoes the prompt, ignore that part
+    if text.lower().startswith(prompt.lower()):
+        text = text[len(prompt):].strip()
+
+    # Ensure blank replacement
     if idiom.lower() in text.lower():
         text = text.replace(idiom, "_____")
     elif "_____" not in text:
-        text = "_____"
+        text = "_____ " + text
+
     return text
 
 def generate_distractors(correct_idiom, all_idioms):
