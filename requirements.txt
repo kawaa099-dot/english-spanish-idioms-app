@@ -6,3 +6,4 @@ torch
 numpy
 pandas
 sentencepiece
+openai
