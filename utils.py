@@ -170,25 +170,40 @@ def load_generator():
 
 generator = load_generator()
 
-def generate_ai_sentence(idiom):
+def generate_ai_sentence(idiom, examples_map):
     prompt = (
-        f"Write a natural English sentence using the idiom '{idiom}' "
-        "in context for a fill-in-the-blank quiz. Replace the idiom with a blank."
+        f"Write one natural English sentence using the idiom '{idiom}'. "
+        f"Replace the idiom with a blank (_____). Only output the sentence."
     )
-    result = generator(prompt, max_new_tokens=50, do_sample=True, temperature=0.8)
-    text = result[0]['generated_text']
 
-    # If AI echoes the prompt, ignore that part
-    if text.lower().startswith(prompt.lower()):
-        text = text[len(prompt):].strip()
+    try:
+        result = generator(
+            prompt,
+            max_new_tokens=40,
+            do_sample=True,
+            temperature=0.9
+        )
+        text = result[0]['generated_text'].strip()
 
-    # Ensure blank replacement
-    if idiom.lower() in text.lower():
-        text = text.replace(idiom, "_____")
-    elif "_____" not in text:
-        text = "_____ " + text
+        # Remove prompt if echoed
+        if prompt.lower() in text.lower():
+            text = text.replace(prompt, "").strip()
 
-    return text
+        # Check if valid
+        if "_____" in text and len(text) > 20:
+            return text
+
+    except:
+        pass
+
+    #FALLBACK → dataset example
+    examples = examples_map.get(idiom.lower(), [])
+    if examples:
+        sentence = random.choice(examples)["en"]
+        return sentence.replace(idiom, "_____")
+
+    #FINAL fallback
+    return f"I decided to _____."
 
 def generate_distractors(correct_idiom, all_idioms):
     pool = [i for i in all_idioms if i != correct_idiom]
