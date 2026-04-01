@@ -3,10 +3,10 @@ title: English-spanish IDIOMS APP
 emoji: 🚀
 colorFrom: red
 colorTo: red
-sdk: docker
-app_port: 8501
+sdk: streamlit
+app_file: app.py
 tags:
-- streamlit
+  - streamlit
 pinned: false
 short_description: Streamlit template space
 ---
