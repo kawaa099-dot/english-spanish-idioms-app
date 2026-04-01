@@ -8,7 +8,8 @@ import pathlib
 import streamlit as st
 import random
 from functools import lru_cache
-
+from transformers import pipeline
+import random
 
 # LOAD IDIOMS
 @st.cache_data
@@ -162,93 +163,41 @@ def build_examples_map():
     return examples_map
 
 # QUIZ GENERATION
-def generate_ai_question(idioms_list, examples_map):
 
-    if len(idioms_list) < 4:
-        raise ValueError("Need at least 4 idioms")
+# Load once
+generator = pipeline("text-generation", model="google/flan-t5-base")
 
-    correct = random.choice(idioms_list)
-    correct_idiom = correct["idiom"]
+def generate_ai_sentence(idiom):
+    prompt = (
+        f"Create a natural English sentence using the idiom '{idiom}' "
+        "for a fill-in-the-blank quiz. Leave a blank where the idiom goes."
+    )
+    result = generator(prompt, max_length=50, do_sample=True, temperature=0.8)
+    text = result[0]['generated_text']
 
-    examples = examples_map.get(correct_idiom.lower(), [])
+    # Replace idiom with blank if needed
+    if idiom.lower() in text.lower():
+        text = text.replace(idiom, "_____")
+    elif "_____" not in text:
+        text = "_____"
+    return text
 
-    if examples:
-        example_sentence = random.choice(examples)["en"]
-    else:
-        example_sentence = f"I decided to {correct_idiom}."
-
-    sentence = example_sentence.replace(correct_idiom, "_____")
-
-    other_idioms = [
-        i["idiom"] for i in idioms_list
-        if i["idiom"] != correct_idiom
-    ]
-
-    wrong_options = random.sample(other_idioms, 3)
-
-    options = wrong_options + [correct_idiom]
+def generate_distractors(correct_idiom, all_idioms):
+    pool = [i for i in all_idioms if i != correct_idiom]
+    distractors = random.sample(pool, min(3, len(pool)))
+    options = distractors + [correct_idiom]
     random.shuffle(options)
+    return options
 
+def generate_ai_question_dynamic(all_idioms):
+    correct = random.choice(all_idioms)
+    sentence = generate_ai_sentence(correct)
+    options = generate_distractors(correct, all_idioms)
+    
     return {
         "question": sentence,
         "options": options,
-        "answer": correct_idiom
-    }
-
-# DATASET-BASED ADAPTIVE QUIZ (REAL SENTENCES ONLY)
-import re
-
-def generate_adaptive_quiz(conn, idiom_map, examples_map):
-
-    idioms = list(idiom_map.keys())
-
-    # Build list of valid (idiom, example) pairs
-    valid_examples = []
-
-    for idiom, examples in examples_map.items():
-        for ex in examples:
-            sentence = ex.get("en", "")
-            if not sentence:
-                continue
-
-            # Case-insensitive whole match replacement check
-            pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
-
-            if pattern.search(sentence):
-                valid_examples.append((idiom, sentence))
-
-    if not valid_examples:
-        raise ValueError("No valid dataset sentences contain their idioms.")
-
-    # Adaptive filtering (prioritize weak idioms)
-    weak = get_weak_idioms(conn)
-
-    if weak:
-        filtered = [pair for pair in valid_examples if pair[0] in weak]
-        if filtered:
-            valid_examples = filtered
-
-    idiom, sentence = random.choice(valid_examples)
-
-    # Replace idiom with blank (safe regex replacement)
-    question_sentence = re.sub(
-        r'\b' + re.escape(idiom) + r'\b',
-        "_____",
-        sentence,
-        flags=re.IGNORECASE
-    )
-
-    # Generate wrong options
-    wrong_pool = [i for i in idioms if i != idiom]
-    wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
-
-    options = wrong_options + [idiom]
-    random.shuffle(options)
-
-    return {
-        "question": question_sentence,
-        "options": options,
-        "answer": idiom
+        "answer": correct
     }
 
 # DETECT IDIOMS
