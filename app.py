@@ -176,39 +176,23 @@ elif mode == "Learning Analytics":
         col1,col2,col3,col4 = st.columns(4)
 
         with col1:
-            st.metric(
-                label="🎯 Mastered <span title='Idioms you have answered correctly at least 80% of the time'>❓</span>",
-                value=f"{mastered}/{total_idioms}",
-                delta=None,
-                help=None,
-                delta_color="normal",
-                label_visibility="visible",
-                unsafe_allow_html=True
-            )
+            st.markdown("🎯 Mastered <span title='Idioms you have answered correctly at least 80% of the time'>❓</span>", unsafe_allow_html=True)
+            st.metric("", f"{mastered}/{total_idioms}")
             st.progress(mastered/total_idioms)
-
+        
         with col2:
-            st.metric(
-                label="📚 Practiced <span title='Idioms you have attempted at least once'>❓</span>",
-                value=f"{practiced}/{total_idioms}",
-                unsafe_allow_html=True
-            )
+            st.markdown("📚 Practiced <span title='Idioms you have attempted at least once'>❓</span>", unsafe_allow_html=True)
+            st.metric("", f"{practiced}/{total_idioms}")
             st.progress(practiced/total_idioms)
-
+        
         with col3:
-            st.metric(
-                label="⚠️ Weak <span title='Idioms with accuracy below 60%'>❓</span>",
-                value=weak,
-                unsafe_allow_html=True
-            )
+            st.markdown("⚠️ Weak <span title='Idioms with accuracy below 60%'>❓</span>", unsafe_allow_html=True)
+            st.metric("", weak)
             st.progress(weak/total_idioms)
         
         with col4:
-            st.metric(
-                label="🎯 Accuracy <span title='Your average correct rate across all attempted idioms'>❓</span>",
-                value=f"{avg_acc*100:.1f}%",
-                unsafe_allow_html=True
-            )
+            st.markdown("🎯 Accuracy <span title='Your average correct rate across all attempted idioms'>❓</span>", unsafe_allow_html=True)
+            st.metric("", f"{avg_acc*100:.1f}%")
             st.progress(avg_acc)
 
         st.markdown("---")
