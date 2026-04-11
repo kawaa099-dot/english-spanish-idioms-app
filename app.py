@@ -119,7 +119,11 @@ elif mode == "Quiz time!":
     st.write("Fill in the blank")
     st.write(quiz["question"])
 
-    user_answer = st.radio("Choose your answer:", quiz["options"])
+    user_answer = st.radio(
+        "Choose your answer:",
+        quiz["options"],
+        key=quiz["question"]  
+    )
 
     if st.button("Submit"):
 
@@ -134,6 +138,7 @@ elif mode == "Quiz time!":
 
     if st.button("New Question"):
         st.session_state.quiz = generate_ai_question_dynamic(idioms, examples_map)
+        st.session_state.pop("selected_answer", None)
         st.rerun()
 
 # ANALYTICS
