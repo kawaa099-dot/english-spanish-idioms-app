@@ -181,24 +181,43 @@ elif mode == "Learning Analytics":
         col1,col2,col3,col4 = st.columns(4)
 
         with col1:
-            st.markdown("🎯 Mastered <span title='Idioms you have answered correctly at least 80% of the time'>❓</span>", unsafe_allow_html=True)
-            st.metric("", f"{mastered}/{total_idioms}")
+            st.metric(
+                label="🎯 Mastered",
+                value=f"{mastered}/{total_idioms}",
+            )
+            with st.expander("❓ What is Mastered?"):
+                st.caption("Idioms you have answered correctly at least 80% of the time.")
             st.progress(mastered/total_idioms)
         
+        
         with col2:
-            st.markdown("📚 Practiced <span title='Idioms you have attempted at least once'>❓</span>", unsafe_allow_html=True)
-            st.metric("", f"{practiced}/{total_idioms}")
+            st.metric(
+                label="📚 Practiced",
+                value=f"{practiced}/{total_idioms}",
+            )
+            with st.expander("❓ What is Practiced?"):
+                st.caption("Idioms you have attempted at least once.")
             st.progress(practiced/total_idioms)
         
+        
         with col3:
-            st.markdown("⚠️ Weak <span title='Idioms with accuracy below 60%'>❓</span>", unsafe_allow_html=True)
-            st.metric("", weak)
+            st.metric(
+                label="⚠️ Weak",
+                value=weak,
+            )
+            with st.expander("❓ What is Weak?"):
+                st.caption("Idioms with accuracy below 60%.")
             st.progress(weak/total_idioms)
         
+        
         with col4:
-            st.markdown("🎯 Accuracy <span title='Your average correct rate across all attempted idioms'>❓</span>", unsafe_allow_html=True)
-            st.metric("", f"{avg_acc*100:.1f}%")
-            st.progress(avg_acc)
+            st.metric(
+                label="🎯 Accuracy",
+                value=f"{avg_acc*100:.1f}%",
+            )
+            with st.expander("❓ What is Accuracy?"):
+                st.caption("Your average correct rate across all attempted idioms.")
+            st.progress(avg_acc)        
 
         st.markdown("---")
 
