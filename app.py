@@ -101,6 +101,7 @@ elif mode == "Idioms in sentences":
                         st.rerun()
 
 # QUIZ
+import uuid
 
 elif mode == "Quiz time!":
 
@@ -114,6 +115,9 @@ elif mode == "Quiz time!":
     if "quiz" not in st.session_state:
         st.session_state.quiz = generate_ai_question_dynamic(idioms,examples_map)
 
+    if "question_id" not in st.session_state:
+    st.session_state.question_id = str(uuid.uuid4())
+
     quiz = st.session_state.quiz
 
     st.write("Fill in the blank")
@@ -122,7 +126,7 @@ elif mode == "Quiz time!":
     user_answer = st.radio(
         "Choose your answer:",
         quiz["options"],
-        key=quiz["question"]  
+        key=st.session_state.question_id  
     )
 
     if st.button("Submit"):
@@ -138,7 +142,7 @@ elif mode == "Quiz time!":
 
     if st.button("New Question"):
         st.session_state.quiz = generate_ai_question_dynamic(idioms, examples_map)
-        st.session_state.pop("selected_answer", None)
+        st.session_state.question_id = str(uuid.uuid4()) 
         st.rerun()
 
 # ANALYTICS
