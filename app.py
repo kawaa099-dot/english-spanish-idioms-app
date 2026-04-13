@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
@@ -101,7 +102,6 @@ elif mode == "Idioms in sentences":
                         st.rerun()
 
 # QUIZ
-import uuid
 
 elif mode == "Quiz time!":
 
@@ -116,7 +116,7 @@ elif mode == "Quiz time!":
         st.session_state.quiz = generate_ai_question_dynamic(idioms,examples_map)
 
     if "question_id" not in st.session_state:
-    st.session_state.question_id = str(uuid.uuid4())
+        st.session_state.question_id = str(uuid.uuid4())
 
     quiz = st.session_state.quiz
 
