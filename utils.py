@@ -221,25 +221,39 @@ def generate_distractors(correct_idiom, all_idioms):
     random.shuffle(options)
     return options
 
-def generate_ai_question_dynamic(all_idioms, examples_map):
+def generate_ai_question_dynamic(all_idioms, examples_map, used_questions):
 
-    # ---------- 1. Try AI multiple times ----------
-    for _ in range(5):
+    import random
 
-        correct = random.choice(all_idioms)
-        sentence = generate_ai_sentence(correct, examples_map)
+    # Shuffle to avoid bias
+    shuffled = all_idioms[:]
+    random.shuffle(shuffled)
+
+    # ---------- 1. Try AI generation ----------
+    for idiom in shuffled:
+
+        if idiom in used_questions:
+            continue  # ✅ skip used ones
+
+        sentence = generate_ai_sentence(idiom, examples_map)
 
         if sentence:
-            options = generate_distractors(correct, all_idioms)
+            used_questions.add(idiom)  # ✅ mark as used
+
+            options = generate_distractors(idiom, all_idioms)
 
             return {
                 "question": sentence,
                 "options": options,
-                "answer": correct
+                "answer": idiom
             }
 
-    # ---------- 2. FORCE DATASET FALLBACK ----------
-    for idiom in all_idioms:
+    # ---------- 2. FALLBACK using dataset ----------
+    for idiom in shuffled:
+
+        if idiom in used_questions:
+            continue  # ✅ skip used again
+
         examples = examples_map.get(idiom.lower(), [])
 
         valid_examples = [
@@ -251,6 +265,8 @@ def generate_ai_question_dynamic(all_idioms, examples_map):
             sentence = random.choice(valid_examples)
             sentence = sentence.replace(idiom, "_____")
 
+            used_questions.add(idiom)  # ✅ mark as used
+
             options = generate_distractors(idiom, all_idioms)
 
             return {
@@ -259,12 +275,11 @@ def generate_ai_question_dynamic(all_idioms, examples_map):
                 "answer": idiom
             }
 
-    # ---------- 3. LAST RESORT (never crash UI) ----------
-    return {
-        "question": "No question available right now. Try again.",
-        "options": all_idioms[:4],
-        "answer": all_idioms[0]
-    }
+    # ---------- 3. RESET if all used ----------
+    used_questions.clear()
+
+    # Try again once (prevents deadlock)
+    return generate_ai_question_dynamic(all_idioms, examples_map, used_questions)
 
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
