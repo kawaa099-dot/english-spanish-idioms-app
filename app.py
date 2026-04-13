@@ -145,9 +145,19 @@ elif mode == "Quiz time!":
             st.error(f"Wrong! Correct answer: {quiz['answer']}")
 
     if st.button("New Question"):
-        st.session_state.quiz = generate_ai_question_dynamic(idioms, examples_map,used_questions)
-        st.session_state.question_id = str(uuid.uuid4()) 
+
+        new_quiz = generate_ai_question_dynamic(
+            idioms,
+            examples_map,
+            st.session_state.used_questions
+        )
+    
+        st.session_state.used_questions.add(new_quiz["answer"])
+        st.session_state.quiz = new_quiz
+        st.session_state.question_id = str(uuid.uuid4())
+        
         st.rerun()
+
 
 # ANALYTICS
 
