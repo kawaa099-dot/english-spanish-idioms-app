@@ -221,65 +221,61 @@ def generate_distractors(correct_idiom, all_idioms):
     random.shuffle(options)
     return options
 
-def generate_ai_question_dynamic(all_idioms, examples_map, used_questions):
+import re
 
-    import random
+def generate_adaptive_quiz(conn, idiom_map, examples_map):
 
-    # Shuffle to avoid bias
-    shuffled = all_idioms[:]
-    random.shuffle(shuffled)
+    idioms = list(idiom_map.keys())
 
-    # ---------- 1. Try AI generation ----------
-    for idiom in shuffled:
+    # Build list of valid (idiom, example) pairs
+    valid_examples = []
 
-        if idiom in used_questions:
-            continue  # ✅ skip used ones
+    for idiom, examples in examples_map.items():
+        for ex in examples:
+            sentence = ex.get("en", "")
+            if not sentence:
+                continue
 
-        sentence = generate_ai_sentence(idiom, examples_map)
+            # Case-insensitive whole match replacement check
+            pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
 
-        if sentence:
-            used_questions.add(idiom)  # ✅ mark as used
+            if pattern.search(sentence):
+                valid_examples.append((idiom, sentence))
 
-            options = generate_distractors(idiom, all_idioms)
+    if not valid_examples:
+        raise ValueError("No valid dataset sentences contain their idioms.")
 
-            return {
-                "question": sentence,
-                "options": options,
-                "answer": idiom
-            }
+    # Adaptive filtering (prioritize weak idioms)
+    weak = get_weak_idioms(conn)
 
-    # ---------- 2. FALLBACK using dataset ----------
-    for idiom in shuffled:
+    if weak:
+        filtered = [pair for pair in valid_examples if pair[0] in weak]
+        if filtered:
+            valid_examples = filtered
 
-        if idiom in used_questions:
-            continue  # ✅ skip used again
+    idiom, sentence = random.choice(valid_examples)
 
-        examples = examples_map.get(idiom.lower(), [])
+    # Replace idiom with blank (safe regex replacement)
+    question_sentence = re.sub(
+        r'\b' + re.escape(idiom) + r'\b',
+        "_____",
+        sentence,
+        flags=re.IGNORECASE
+    )
 
-        valid_examples = [
-            ex["en"] for ex in examples
-            if idiom.lower() in ex.get("en", "").lower()
-        ]
+    # Generate wrong options
+    wrong_pool = [i for i in idioms if i != idiom]
+    wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
 
-        if valid_examples:
-            sentence = random.choice(valid_examples)
-            sentence = sentence.replace(idiom, "_____")
+    options = wrong_options + [idiom]
+    random.shuffle(options)
 
-            used_questions.add(idiom)  # ✅ mark as used
+    return {
+        "question": question_sentence,
+        "options": options,
+        "answer": idiom
+    }
 
-            options = generate_distractors(idiom, all_idioms)
-
-            return {
-                "question": sentence,
-                "options": options,
-                "answer": idiom
-            }
-
-    # ---------- 3. RESET if all used ----------
-    used_questions.clear()
-
-    # Try again once (prevents deadlock)
-    return generate_ai_question_dynamic(all_idioms, examples_map, used_questions)
 
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
