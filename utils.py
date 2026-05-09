@@ -9,6 +9,7 @@ import streamlit as st
 import random
 from functools import lru_cache
 from transformers import pipeline
+import re
 
 # LOAD IDIOMS
 @st.cache_data
@@ -169,50 +170,114 @@ def load_generator():
     return pipeline("text-generation", model="google/flan-t5-base")
 
 generator = load_generator()
+    
+def normalize_structure(sentence):
+    """
+    Simplify sentence structure for repetition detection.
+    """
 
-def generate_ai_sentence(idiom, examples_map):
-    prompt = (
-        f"Write ONE natural, realistic English sentence using the idiom '{idiom}'. "
-        f"Replace the idiom with a blank (_____). "
-        f"Do NOT explain. Only output the sentence."
-    )
+    sentence = sentence.lower()
 
-    try:
-        result = generator(
-            prompt,
-            max_new_tokens=40,
-            do_sample=True,
-            temperature=0.9
-        )
+    # remove punctuation
+    sentence = re.sub(r"[^\w\s]", "", sentence)
 
-        text = result[0]["generated_text"].strip()
+    # remove common subjects
+    starters = [
+        "i", "he", "she", "they", "we", "my boss",
+        "the company", "someone", "people", "our team"
+    ]
 
-        # Remove prompt if model echoes it
-        if prompt.lower() in text.lower():
-            text = text.replace(prompt, "").strip()
+    words = sentence.split()
 
-        # accept only GOOD outputs
-        if "_____" in text and len(text) > 25:
-            return text
+    if len(words) >= 2:
+        first_two = " ".join(words[:2])
 
-    except:
-        pass
+        if first_two in starters:
+            return " ".join(words[2:5])
 
-    # FALLBACK
+    return " ".join(words[:3])
+
+
+def generate_ai_sentence(idiom, examples_map, used_structures):
+
+    subjects = [
+        "My boss", "The kids", "A stranger", "Our team",
+        "The company", "Her friend", "The teacher",
+        "Someone", "People", "The situation"
+    ]
+
+    tones = [
+        "casual", "professional", "funny",
+        "dramatic", "everyday"
+    ]
+
+    banned_phrases = [
+        "i decided",
+        "he decided",
+        "she decided",
+        "decided to"
+    ]
+
+    for _ in range(8):
+
+        subject = random.choice(subjects)
+        tone = random.choice(tones)
+
+        prompt = f"""
+Generate ONE natural English sentence using the idiom: "{idiom}".
+
+Rules:
+- Use subject: {subject}
+- Tone: {tone}
+- Vary sentence structure
+- Avoid repetitive openings
+- Make it realistic and conversational
+- Include the idiom EXACTLY once
+
+Return ONLY the sentence.
+"""
+
+        try:
+            sentence = call_mistral_api(prompt).strip()
+
+            if not sentence:
+                continue
+
+            if idiom.lower() not in sentence.lower():
+                continue
+
+            lower = sentence.lower()
+
+            # reject repetitive phrases
+            if any(bad in lower for bad in banned_phrases):
+                continue
+
+            # structure repetition detection
+            structure = normalize_structure(sentence)
+
+            if structure in used_structures:
+                continue
+
+            used_structures.add(structure)
+
+            return sentence
+
+        except Exception:
+            continue
+
+    # ---------- fallback ----------
     examples = examples_map.get(idiom.lower(), [])
 
-    valid_examples = []
-    for ex in examples:
-        sentence = ex.get("en", "")
-        if idiom.lower() in sentence.lower():
-            valid_examples.append(sentence)
+    if examples:
+        sentence = random.choice(examples)["en"]
 
-    if valid_examples:
-        chosen = random.choice(valid_examples)
-        return chosen.replace(idiom, "_____")
+        structure = normalize_structure(sentence)
+
+        if structure not in used_structures:
+            used_structures.add(structure)
+            return sentence.replace(idiom, "_____")
 
     return None
-    
 
 def generate_distractors(correct_idiom, all_idioms):
     pool = [i for i in all_idioms if i != correct_idiom]
