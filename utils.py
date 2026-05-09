@@ -288,7 +288,7 @@ def generate_distractors(correct_idiom, all_idioms):
 
 import re
 
-def generate_adaptive_quiz(conn, idiom_map, examples_map):
+def generate_adaptive_quiz(conn, idiom_map, examples_map, used_questions, used_structures):
 
     idioms = list(idiom_map.keys())
 
