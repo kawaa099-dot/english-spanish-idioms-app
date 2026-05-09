@@ -112,12 +112,15 @@ elif mode == "Quiz time!":
 
     if "used_questions" not in st.session_state:
         st.session_state.used_questions = set()
-
+    
+    if "used_questions" not in st.session_state:
+        st.session_state.used_questions = set()
 
     st.metric("XP", st.session_state.xp)
 
     if "quiz" not in st.session_state:
         st.session_state.quiz = generate_ai_question_dynamic(idioms,examples_map,st.session_state.used_questions)
+        st.session_state.used_structures
 
     if "question_id" not in st.session_state:
         st.session_state.question_id = str(uuid.uuid4())
@@ -151,7 +154,7 @@ elif mode == "Quiz time!":
             examples_map,
             st.session_state.used_questions
         )
-    
+        st.session_state.used_structures
         st.session_state.used_questions.add(new_quiz["answer"])
         st.session_state.quiz = new_quiz
         st.session_state.question_id = str(uuid.uuid4())
