@@ -4,7 +4,7 @@ import uuid
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
     detect_idioms, translate_literal, build_examples_map, remove_favorite,
-    generate_ai_question_dynamic, update_analytics, get_learning_stats
+    generate_adaptive_quiz, update_analytics, get_learning_stats
 )
 
 st.set_page_config(page_title="Idioms Learning App", layout="wide")
@@ -98,7 +98,12 @@ elif mode == "Idioms in sentences":
 
                     # Practice button
                     if st.button(f"Practice '{idiom}'"):
-                        st.session_state.quiz = generate_ai_question_dynamic([idiom])
+                        st.session_state.quiz = generate_adaptive_quiz(
+                                                    conn,
+                                                    {idiom: idiom_map[idiom]},
+                                                    examples_map,
+                                                    st.session_state.used_questions,
+                                                    st.session_state.used_structures)
                         st.rerun()
 
 # QUIZ
@@ -110,8 +115,8 @@ elif mode == "Quiz time!":
     if "xp" not in st.session_state:
         st.session_state.xp = 0
 
-    if "used_questions" not in st.session_state:
-        st.session_state.used_questions = set()
+    if "used_structures" not in st.session_state:
+        st.session_state.used_structures = set()
     
     if "used_questions" not in st.session_state:
         st.session_state.used_questions = set()
@@ -119,8 +124,7 @@ elif mode == "Quiz time!":
     st.metric("XP", st.session_state.xp)
 
     if "quiz" not in st.session_state:
-        st.session_state.quiz = generate_ai_question_dynamic(idioms,examples_map,st.session_state.used_questions,st.session_state.used_structures)
-        st.session_state.used_structures
+        st.session_state.quiz = generate_adaptive_quiz(conn,idiom_map,examples_map,st.session_state.used_questions,st.session_state.used_structures)
 
     if "question_id" not in st.session_state:
         st.session_state.question_id = str(uuid.uuid4())
@@ -149,10 +153,12 @@ elif mode == "Quiz time!":
 
     if st.button("New Question"):
 
-        new_quiz = generate_ai_question_dynamic(
-            idioms,
+        new_quiz = generate_adaptive_quiz(
+            conn,
+            idiom_map,
             examples_map,
-            st.session_state.used_questions
+            st.session_state.used_questions,
+            st.session_state.used_structures
         )
         st.session_state.used_structures
         st.session_state.used_questions.add(new_quiz["answer"])
