@@ -168,8 +168,8 @@ def build_examples_map():
 @st.cache_resource
 def load_generator():
     return pipeline(
-        "text2text-generation",
-        model="google/flan-t5-base"
+        "text-generation",
+        model="distilgpt2"
     )
 
 generator = load_generator()
