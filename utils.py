@@ -224,21 +224,28 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
         tone = random.choice(tones)
 
         prompt = f"""
-Generate ONE natural English sentence using the idiom: "{idiom}".
-
-Rules:
-- Use subject: {subject}
-- Tone: {tone}
-- Vary sentence structure
-- Avoid repetitive openings
-- Make it realistic and conversational
-- Include the idiom EXACTLY once
-
-Return ONLY the sentence.
-"""
+                Generate ONE natural English sentence using the idiom: "{idiom}".
+                
+                Rules:
+                - Use subject: {subject}
+                - Tone: {tone}
+                - Vary sentence structure
+                - Avoid repetitive openings
+                - Make it realistic and conversational
+                - Include the idiom EXACTLY once
+                
+                Return ONLY the sentence.
+                """
 
         try:
-            sentence = call_mistral_api(prompt).strip()
+            result = generator(
+                prompt,
+                max_new_tokens=50,
+                do_sample=True,
+                temperature=0.8
+            )
+                    
+            sentence = result[0]["generated_text"].strip()
 
             if not sentence:
                 continue
@@ -288,39 +295,119 @@ def generate_distractors(correct_idiom, all_idioms):
 
 import re
 
-def generate_adaptive_quiz(conn, idiom_map, examples_map, used_questions, used_structures):
+def generate_adaptive_quiz(
+    conn,
+    idiom_map,
+    examples_map,
+    used_questions,
+    used_structures
+):
 
     idioms = list(idiom_map.keys())
 
-    # Build list of valid (idiom, example) pairs
-    valid_examples = []
+    # ---------- 1. Choose unused idiom ----------
+    available = [i for i in idioms if i not in used_questions]
 
-    for idiom, examples in examples_map.items():
-        for ex in examples:
-            sentence = ex.get("en", "")
-            if not sentence:
-                continue
+    # reset if exhausted
+    if not available:
+        used_questions.clear()
+        available = idioms[:]
 
-            # Case-insensitive whole match replacement check
-            pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
-
-            if pattern.search(sentence):
-                valid_examples.append((idiom, sentence))
-
-    if not valid_examples:
-        raise ValueError("No valid dataset sentences contain their idioms.")
-
-    # Adaptive filtering (prioritize weak idioms)
+    # prioritize weak idioms
     weak = get_weak_idioms(conn)
 
     if weak:
-        filtered = [pair for pair in valid_examples if pair[0] in weak]
-        if filtered:
-            valid_examples = filtered
+        weak_available = [i for i in available if i in weak]
+
+        if weak_available:
+            available = weak_available
+
+    random.shuffle(available)
+
+    # ---------- 2. Try AI generation ----------
+    for idiom in available:
+
+        sentence = generate_ai_sentence(
+            idiom,
+            examples_map,
+            used_structures
+        )
+
+        if sentence:
+
+            used_questions.add(idiom)
+
+            question_sentence = re.sub(
+                r'\b' + re.escape(idiom) + r'\b',
+                "_____",
+                sentence,
+                flags=re.IGNORECASE
+            )
+
+            wrong_pool = [i for i in idioms if i != idiom]
+
+            wrong_options = random.sample(
+                wrong_pool,
+                min(3, len(wrong_pool))
+            )
+
+            options = wrong_options + [idiom]
+            random.shuffle(options)
+
+            return {
+                "question": question_sentence,
+                "options": options,
+                "answer": idiom
+            }
+
+    # ---------- 3. DATASET FALLBACK ----------
+    valid_examples = []
+
+    for idiom, examples in examples_map.items():
+
+        if idiom in used_questions:
+            continue
+
+        for ex in examples:
+
+            sentence = ex.get("en", "")
+
+            if not sentence:
+                continue
+
+            pattern = re.compile(
+                r'\b' + re.escape(idiom) + r'\b',
+                re.IGNORECASE
+            )
+
+            if pattern.search(sentence):
+
+                structure = normalize_structure(sentence)
+
+                if structure in used_structures:
+                    continue
+
+                used_structures.add(structure)
+
+                valid_examples.append((idiom, sentence))
+
+    if not valid_examples:
+
+        used_questions.clear()
+        used_structures.clear()
+
+        return generate_adaptive_quiz(
+            conn,
+            idiom_map,
+            examples_map,
+            used_questions,
+            used_structures
+        )
 
     idiom, sentence = random.choice(valid_examples)
 
-    # Replace idiom with blank (safe regex replacement)
+    used_questions.add(idiom)
+
     question_sentence = re.sub(
         r'\b' + re.escape(idiom) + r'\b',
         "_____",
@@ -328,9 +415,12 @@ def generate_adaptive_quiz(conn, idiom_map, examples_map, used_questions, used_s
         flags=re.IGNORECASE
     )
 
-    # Generate wrong options
     wrong_pool = [i for i in idioms if i != idiom]
-    wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
+
+    wrong_options = random.sample(
+        wrong_pool,
+        min(3, len(wrong_pool))
+    )
 
     options = wrong_options + [idiom]
     random.shuffle(options)
