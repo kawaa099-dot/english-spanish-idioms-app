@@ -167,7 +167,10 @@ def build_examples_map():
 # Load once
 @st.cache_resource
 def load_generator():
-    return pipeline("text-generation", model="google/flan-t5-base")
+    return pipeline(
+        "text2text-generation",
+        model="google/flan-t5-base"
+    )
 
 generator = load_generator()
     
