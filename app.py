@@ -110,24 +110,28 @@ elif mode == "Idioms in sentences":
 
 elif mode == "Quiz time!":
 
-    st.header("🎮Quiz")
+    st.header("🎮 Quiz")
 
     if "xp" not in st.session_state:
         st.session_state.xp = 0
 
     if "used_structures" not in st.session_state:
         st.session_state.used_structures = set()
-    
+
     if "used_questions" not in st.session_state:
         st.session_state.used_questions = set()
 
     st.metric("XP", st.session_state.xp)
 
+    # ---------- INIT QUIZ ----------
     if "quiz" not in st.session_state:
-        st.session_state.quiz = generate_adaptive_quiz(conn,idiom_map,examples_map,st.session_state.used_questions,st.session_state.used_structures)
-
-    if "question_id" not in st.session_state:
-        st.session_state.question_id = str(uuid.uuid4())
+        st.session_state.quiz = generate_adaptive_quiz(
+            conn,
+            idiom_map,
+            examples_map,
+            st.session_state.used_questions,
+            st.session_state.used_structures
+        )
 
     quiz = st.session_state.quiz
 
@@ -136,13 +140,13 @@ elif mode == "Quiz time!":
 
     user_answer = st.radio(
         "Choose your answer:",
-        quiz["options"],
-        key=st.session_state.question_id  
+        quiz["options"]
     )
 
+    # ---------- SUBMIT ----------
     if st.button("Submit"):
 
-        correct = user_answer == quiz["answer"]
+        correct = (user_answer == quiz["answer"])
         update_analytics(conn, quiz["answer"], correct)
 
         if correct:
@@ -151,6 +155,7 @@ elif mode == "Quiz time!":
         else:
             st.error(f"Wrong! Correct answer: {quiz['answer']}")
 
+    # ---------- NEW QUESTION ----------
     if st.button("New Question"):
 
         new_quiz = generate_adaptive_quiz(
@@ -160,11 +165,12 @@ elif mode == "Quiz time!":
             st.session_state.used_questions,
             st.session_state.used_structures
         )
-        st.session_state.used_structures
+
+        # store used items properly
         st.session_state.used_questions.add(new_quiz["answer"])
+
         st.session_state.quiz = new_quiz
-        st.session_state.question_id = str(uuid.uuid4())
-        
+
         st.rerun()
 
 
