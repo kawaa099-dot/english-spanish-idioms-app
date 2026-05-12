@@ -330,8 +330,6 @@ def generate_distractors(correct_idiom, all_idioms):
     random.shuffle(options)
     return options
 
-import re
-
 def generate_adaptive_quiz(
     conn,
     idiom_map,
@@ -340,12 +338,13 @@ def generate_adaptive_quiz(
     used_structures
 ):
 
+    # idioms from JSON file
     idioms = list(idiom_map.keys())
 
-    # ---------- 1. Choose unused idiom ----------
+    # Choose unused idiom
     available = [i for i in idioms if i not in used_questions]
 
-    # reset if exhausted
+    # reset if all used
     if not available:
         used_questions.clear()
         available = idioms[:]
@@ -361,7 +360,7 @@ def generate_adaptive_quiz(
 
     random.shuffle(available)
 
-    # ---------- 2. Try AI generation ----------
+    # AI generation
     for idiom in available:
 
         sentence = generate_ai_sentence(
@@ -370,37 +369,53 @@ def generate_adaptive_quiz(
             used_structures
         )
 
-        if sentence:
+        if not sentence:
+            continue
 
-            used_questions.add(idiom)
+        # ensure correct idiom exists
+        pattern = re.compile(
+            r'\b' + re.escape(idiom) + r'\b',
+            re.IGNORECASE
+        )
 
-            question_sentence = re.sub(
-                r'\b' + re.escape(idiom) + r'\b',
-                "_____",
-                sentence,
-                flags=re.IGNORECASE
-            )
+        if not pattern.search(sentence):
+            continue
 
-            wrong_pool = [i for i in idioms if i != idiom]
+        used_questions.add(idiom)
 
-            wrong_options = random.sample(
-                wrong_pool,
-                min(3, len(wrong_pool))
-            )
+        question_sentence = pattern.sub(
+            "_____",
+            sentence
+        )
 
-            options = wrong_options + [idiom]
-            random.shuffle(options)
+        # ONLY options from JSON file
+        wrong_pool = [
+            i for i in idioms
+            if i != idiom and i.lower() in idiom_map
+        ]
 
-            return {
-                "question": question_sentence,
-                "options": options,
-                "answer": idiom
-            }
+        wrong_options = random.sample(
+            wrong_pool,
+            min(3, len(wrong_pool))
+        )
 
-    # ---------- 3. DATASET FALLBACK ----------
+        options = wrong_options + [idiom]
+        random.shuffle(options)
+
+        return {
+            "question": question_sentence,
+            "options": options,
+            "answer": idiom
+        }
+
+    # DATASET FALLBACK 
     valid_examples = []
 
     for idiom, examples in examples_map.items():
+
+        # skip idioms not in JSON
+        if idiom not in idioms:
+            continue
 
         if idiom in used_questions:
             continue
@@ -417,17 +432,19 @@ def generate_adaptive_quiz(
                 re.IGNORECASE
             )
 
-            if pattern.search(sentence):
+            if not pattern.search(sentence):
+                continue
 
-                structure = normalize_structure(sentence)
+            structure = normalize_structure(sentence)
 
-                if structure in used_structures:
-                    continue
+            if structure in used_structures:
+                continue
 
-                used_structures.add(structure)
+            used_structures.add(structure)
 
-                valid_examples.append((idiom, sentence))
+            valid_examples.append((idiom, sentence))
 
+    # reset memory if exhausted
     if not valid_examples:
 
         used_questions.clear()
@@ -445,14 +462,21 @@ def generate_adaptive_quiz(
 
     used_questions.add(idiom)
 
-    question_sentence = re.sub(
+    pattern = re.compile(
         r'\b' + re.escape(idiom) + r'\b',
-        "_____",
-        sentence,
-        flags=re.IGNORECASE
+        re.IGNORECASE
     )
 
-    wrong_pool = [i for i in idioms if i != idiom]
+    question_sentence = pattern.sub(
+        "_____",
+        sentence
+    )
+
+    # ONLY options from JSON
+    wrong_pool = [
+        i for i in idioms
+        if i != idiom and i.lower() in idiom_map
+    ]
 
     wrong_options = random.sample(
         wrong_pool,
@@ -460,6 +484,7 @@ def generate_adaptive_quiz(
     )
 
     options = wrong_options + [idiom]
+
     random.shuffle(options)
 
     return {
