@@ -227,17 +227,7 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
         tone = random.choice(tones)
 
         prompt = f"""
-                Generate ONE natural English sentence using the idiom: "{idiom}".
-                
-                Rules:
-                - Use subject: {subject}
-                - Tone: {tone}
-                - Vary sentence structure
-                - Avoid repetitive openings
-                - Make it realistic and conversational
-                - Include the idiom EXACTLY once
-                
-                Return ONLY the sentence.
+        Sentence with the idiom "{idiom}":
         """
 
         try:
