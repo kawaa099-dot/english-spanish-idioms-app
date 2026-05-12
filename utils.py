@@ -200,7 +200,6 @@ def normalize_structure(sentence):
 
     return " ".join(words[:3])
 
-
 def generate_ai_sentence(idiom, examples_map, used_structures):
 
     subjects = [
@@ -223,24 +222,36 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
 
     for _ in range(8):
 
-        subject = random.choice(subjects)
-        tone = random.choice(tones)
-
-        prompt = f"""
-        Sentence with the idiom "{idiom}":
-        """
-
         try:
+
+            subject = random.choice(subjects)
+            tone = random.choice(tones)
+
+            prompt = f"""
+            Write one natural {tone} English sentence using the idiom "{idiom}".
+            Use "{subject}" as the subject.
+            Make it conversational and realistic.
+            """
+
             result = generator(
                 prompt,
-                max_new_tokens=50,
+                max_new_tokens=40,
                 do_sample=True,
-                temperature=0.8
+                temperature=1.0,
+                top_k=50,
+                top_p=0.95,
+                repetition_penalty=1.2,
+                truncation=True
             )
-                    
-            sentence = result[0]["generated_text"].strip()
 
+            sentence = result[0]["generated_text"]
+            sentence = sentence.replace(prompt, "").strip()
+
+            # Basic validation
             if not sentence:
+                continue
+
+            if len(sentence.split()) < 5:
                 continue
 
             if idiom.lower() not in sentence.lower():
@@ -248,11 +259,11 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
 
             lower = sentence.lower()
 
-            # reject repetitive phrases
+            # Reject repetitive templates
             if any(bad in lower for bad in banned_phrases):
                 continue
 
-            # structure repetition detection
+            # Detect repeated structures
             structure = normalize_structure(sentence)
 
             if structure in used_structures:
@@ -260,22 +271,55 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
 
             used_structures.add(structure)
 
+            # Replace idiom with blank
+            sentence = re.sub(
+                re.escape(idiom),
+                "_____",
+                sentence,
+                flags=re.IGNORECASE
+            )
+
             return sentence
 
         except Exception:
             continue
 
-    # ---------- fallback ----------
+    # ---------- FALLBACK TO DATASET ----------
     examples = examples_map.get(idiom.lower(), [])
 
-    if examples:
-        sentence = random.choice(examples)["en"]
+    valid_examples = []
 
-        structure = normalize_structure(sentence)
+    for ex in examples:
+        text = ex.get("en", "")
 
-        if structure not in used_structures:
-            used_structures.add(structure)
-            return sentence.replace(idiom, "_____")
+        if idiom.lower() in text.lower():
+
+            lower = text.lower()
+
+            if any(bad in lower for bad in banned_phrases):
+                continue
+
+            structure = normalize_structure(text)
+
+            if structure not in used_structures:
+                valid_examples.append(text)
+
+    if valid_examples:
+
+        sentence = random.choice(valid_examples)
+
+        used_structures.add(
+            normalize_structure(sentence)
+        )
+
+        sentence = re.sub(
+            re.escape(idiom),
+            "_____",
+            sentence,
+            flags=re.IGNORECASE
+        )
+
+        return sentence
 
     return None
 
