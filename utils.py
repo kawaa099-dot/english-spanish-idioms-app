@@ -238,7 +238,7 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
                 - Include the idiom EXACTLY once
                 
                 Return ONLY the sentence.
-                """
+        """
 
         try:
             result = generator(
