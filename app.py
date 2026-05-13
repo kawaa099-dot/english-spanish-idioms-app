@@ -11,7 +11,7 @@ st.set_page_config(page_title="Idioms Learning App", layout="wide")
 st.title("English–Spanish Idioms Learning App")
 
 # Load resources
-idiom_map = load_idioms("idioms.json")
+idiom_map = load_idioms("idiom2.json")
 idioms = sorted(idiom_map.keys())
 conn = init_db()
 examples_map = build_examples_map()
@@ -25,6 +25,8 @@ mode = st.sidebar.selectbox(
 # EXPLORE
 
 if mode == "Explore Idioms":
+
+    
     search = st.text_input("Search idiom:")
     filtered = [i for i in idioms if search.lower() in i.lower()]
     selected = st.selectbox("Choose idiom:", filtered)
