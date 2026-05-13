@@ -1,0 +1,374 @@
+ { 
+  "break the ice": {
+    "meaning": "hacer que la gente se siente cómoda",
+    "topic": "Communication"
+  },
+  "hit the sack": {
+    "meaning": "irse a la cama",
+    "topic": "Daily Life"
+  },
+  "piece of cake": {
+    "meaning": "pan comido",
+    "topic": "Success & Failure"
+  },
+  "once in a blue moon": {
+    "meaning": "de uvas a peras/muy de vez en cuando",
+    "topic": "Time"
+  },
+  "actions speak louder than words": {
+    "meaning": "las acciones hablan más que las palabras",
+    "topic": "Communication"
+  },
+  "a blessing in disguise": {
+    "meaning": "bendición disfrazada",
+    "topic": "Success & Failure"
+  },
+  "bite the bullet": {
+    "meaning": "aceptar algo díficil/amarse de valor",
+    "topic": "Challenges"
+  },
+  "cost an arm and a leg": {
+    "meaning": "costar un ojo de la cara",
+    "topic": "Money"
+  },
+  "spill the beans": {
+    "meaning": "contar un secreto",
+    "topic": "Communication"
+  },
+  "the ball is in your court": {
+    "meaning": "la pelota está en tu tejado/depende de ti",
+    "topic": "Responsibility"
+  },
+  "under the weather": {
+    "meaning": "estar indispuesto/enfermo",
+    "topic": "Health"
+  },
+  "barking up the wrong tree": {
+    "meaning": "equivocarse de persona o asunto",
+    "topic": "Communication"
+  },
+  "kill two birds with one stone": {
+    "meaning": "matar dos pájaros de un tiro",
+    "topic": "Efficiency"
+  },
+  "let the cat out of the bag": {
+    "meaning": "revelar un secreto",
+    "topic": "Communication"
+  },
+  "Hit the nail on the head": {
+    "meaning": "Dar en el clavo",
+    "topic": "Communication"
+  },
+  "Bite off more than you can chew": {
+    "meaning": "Querer abarcar más de lo que se puede",
+    "topic": "Challenges"
+  },
+  "Burn the midnight oil": {
+    "meaning": "Quemarse las pestañas / Trabajar hasta tarde",
+    "topic": "Work"
+  },
+  "Cut corners": {
+    "meaning": "Hacer algo a medias / Tomar atajos",
+    "topic": "Work"
+  },
+  "Cry over spilled milk": {
+    "meaning": "Llorar sobre la leche derramada",
+    "topic": "Emotions"
+  },
+  "You can’t judge a book by its cover": {
+    "meaning": "No juzgues un libro por su portada",
+    "topic": "Judgment"
+  },
+  "Back to the drawing board": {
+    "meaning": "Volver a empezar / Empezar de cero",
+    "topic": "Success & Failure"
+  },
+  "Hit the road": {
+    "meaning": "Ponerse en camino / Irse",
+    "topic": "Travel"
+  },
+  "Through thick and thin": {
+    "meaning": "En las buenas y en las malas",
+    "topic": "Relationships"
+  },
+  "The early bird catches the worm": {
+    "meaning": "Al que madruga, Dios le ayuda",
+    "topic": "Success & Failure"
+  },
+  "No pain, no gain": {
+    "meaning": "Sin esfuerzo no hay recompensa",
+    "topic": "Success & Failure"
+  },
+  "Throw in the towel": {
+    "meaning": "Tirar la toalla / Rendirse",
+    "topic": "Success & Failure"
+  },
+  "A dime a dozen": {
+    "meaning": "Algo muy común / Abundante",
+    "topic": "Daily Life"
+  },
+  "Keep something under wraps": {
+    "meaning": "Mantener algo en secreto",
+    "topic": "Communication"
+  },
+  "Skeleton in the closet": {
+    "meaning": "Un secreto oculto / Algo vergonzoso del pasado",
+    "topic": "Secrets"
+  },
+  "Straight from the horse’s mouth": {
+    "meaning": "De primera mano / De boca del propio interesado",
+    "topic": "Communication"
+  },
+  "Pull your socks up": {
+    "meaning": "Ponerse las pilas / Esforzarse más",
+    "topic": "Motivation"
+  },
+  "Blood, sweat, and tears": {
+    "meaning": "Sangre, sudor y lágrimas / Mucho esfuerzo",
+    "topic": "Work"
+  },
+  "Break a leg": {
+    "meaning": "¡Mucha mierda! / ¡Suerte!",
+    "topic": "Luck"
+  },
+  "Touch wood / Knock on wood": {
+    "meaning": "Tocar madera / Para atraer buena suerte",
+    "topic": "Luck"
+  },
+  "Down on your luck": {
+    "meaning": "En mala racha / Con mala suerte",
+    "topic": "Luck"
+  },
+  "Look before you leap": {
+    "meaning": "Piensa antes de actuar",
+    "topic": "Decision Making"
+  },
+  "Better late than never": {
+    "meaning": "Más vale tarde que nunca",
+    "topic": "Time"
+  },
+  "Time flies": {
+    "meaning": "El tiempo vuela",
+    "topic": "Time"
+  },
+  "In the nick of time": {
+    "meaning": "Justo a tiempo / En el último momento",
+    "topic": "Time"
+  },
+  "Around the clock": {
+    "meaning": "Las 24 horas / Sin parar",
+    "topic": "Time"
+  },
+  "Beat the clock": {
+    "meaning": "Llegar antes de tiempo / Ganarle al reloj",
+    "topic": "Time"
+  },
+  "Call it a day": {
+    "meaning": "Dar por terminado el día / Dar por concluido",
+    "topic": "Work"
+  },
+  "Out of the frying pan into the fire": {
+    "meaning": "Salir de Guatemala y meterse en Guatepeor",
+    "topic": "Problems"
+  },
+  "Between a rock and a hard place": {
+    "meaning": "Entre la espada y la pared",
+    "topic": "Problems"
+  },
+  "Hit it off": {
+    "meaning": "Llevarse muy bien desde el principio",
+    "topic": "Relationships"
+  },
+  "Get on someone’s nerves": {
+    "meaning": "Ponerse en los nervios / Molestar a alguien",
+    "topic": "Emotions"
+  },
+  "Bury the hatchet": {
+    "meaning": "Hacer las paces / Enterrar el hacha de guerra",
+    "topic": "Relationships"
+  },
+  "Money doesn’t grow on trees": {
+    "meaning": "El dinero no crece en los árboles",
+    "topic": "Money"
+  },
+  "Pay through the nose": {
+    "meaning": "Pagar un dineral",
+    "topic": "Money"
+  },
+  "Penny-wise and pound-foolish": {
+    "meaning": "Ahorrar en lo pequeño y gastar en lo grande / Tacaño e imprudente",
+    "topic": "Money"
+  },
+  "Blow off steam": {
+    "meaning": "Desahogarse / Sacar la rabia",
+    "topic": "Emotions"
+  },
+  "On cloud nine": {
+    "meaning": "En el séptimo cielo / Muy feliz",
+    "topic": "Emotions"
+  },
+  "Go ballistic": {
+    "meaning": "Perder los estribos / Enfurecerse",
+    "topic": "Emotions"
+  },
+  "Wear your heart on your sleeve": {
+    "meaning": "Mostrar tus sentimientos abiertamente",
+    "topic": "Emotions"
+  },
+  "Step up to the plate": {
+    "meaning": "Dar un paso al frente / Asumir la responsabilidad",
+    "topic": "Responsibility"
+  },
+  "Play it by ear": {
+    "meaning": "Improvisar / Actuar según la situación",
+    "topic": "Decision Making"
+  },
+  "Think outside the box": {
+    "meaning": "Pensar de manera creativa / Romper esquemas",
+    "topic": "Creativity"
+  },
+  "Climb the ladder": {
+    "meaning": "Ascender en la carrera profesional",
+    "topic": "Work"
+  },
+  "Call the shots": {
+    "meaning": "Tomar las decisiones / Llevar la batuta",
+    "topic": "Leadership"
+  },
+  "Hit the ground running": {
+    "meaning": "Empezar con fuerza / Ponerse manos a la obra",
+    "topic": "Work"
+  },
+  "Back on your feet": {
+    "meaning": "Recuperarse / Volver a estar en pie",
+    "topic": "Health"
+  },
+  "Out of sorts": {
+    "meaning": "Sentirse mal / De mal humor",
+    "topic": "Health"
+  },
+  "Fit as a fiddle": {
+    "meaning": "En plena forma / Muy saludable",
+    "topic": "Health"
+  },
+  "Burn out": {
+    "meaning": "Agotarse / Quemarse (por exceso de trabajo o estrés)",
+    "topic": "Health"
+  },
+  "Curiosity killed the cat": {
+    "meaning": "La curiosidad mató al gato",
+    "topic": "Animals"
+  },
+  "Let sleeping dogs lie": {
+    "meaning": "No despertar al perro que duerme / No remover problemas antiguos",
+    "topic": "Problems"
+  },
+  "The lion’s share": {
+    "meaning": "La mayor parte / La porción más grande",
+    "topic": "Animals"
+  },
+  "Birds of a feather flock together": {
+    "meaning": "Dios los cría y ellos se juntan / Dime con quién andas…",
+    "topic": "Relationships"
+  },
+  "Hold your horses": {
+    "meaning": "Calma / Espera un momento",
+    "topic": "Animals"
+  },
+  "Bring home the bacon": {
+    "meaning": "Ganar el sustento / Mantener a la familia",
+    "topic": "Work"
+  },
+  "Apple of one’s eye": {
+    "meaning": "El ojito derecho / Muy querido",
+    "topic": "Relationships"
+  },
+  "Every cloud has a silver lining": {
+    "meaning": "No hay mal que por bien no venga",
+    "topic": "Optimism"
+  },
+  "Rain on someone’s parade": {
+    "meaning": "Arruinarle la fiesta a alguien / Echar a perder algo",
+    "topic": "Emotions"
+  },
+  "Chase rainbows": {
+    "meaning": "Perseguir ilusiones / Buscar algo imposible",
+    "topic": "Dreams"
+  },
+  "Come rain or shine": {
+    "meaning": "Pase lo que pase / Con lluvia o sol",
+    "topic": "Commitment"
+  },
+  "Go the extra mile": {
+    "meaning": "Hacer un esfuerzo adicional / Ir más allá",
+    "topic": "Motivation"
+  },
+  "Off the beaten track": {
+    "meaning": "Fuera de lo común / En un lugar remoto",
+    "topic": "Travel"
+  },
+  "Take the plunge": {
+    "meaning": "Dar el salto / Atreverse",
+    "topic": "Decision Making"
+  },
+  "Make a long story short": {
+    "meaning": "Para no hacer larga la historia / En resumen",
+    "topic": "Communication"
+  },
+  "Take with a grain of salt": {
+    "meaning": "Tomar con pinzas",
+    "topic": "Communication"
+  },
+  "Throw caution to the wind": {
+    "meaning": "Echar la cautela al viento / Arriesgarse",
+    "topic": "Risk"
+  },
+  "Cross that bridge when you come to it": {
+    "meaning": "No te preocupes antes de tiempo",
+    "topic": "Problems"
+  },
+  "In hot water": {
+    "meaning": "En apuros / Metido en problemas",
+    "topic": "Problems"
+  },
+  "Playing with fire": {
+    "meaning": "Jugar con fuego / Tomar riesgos innecesarios",
+    "topic": "Risk"
+  },
+  "Bite the hand that feeds you": {
+    "meaning": "Morder la mano que te da de comer",
+    "topic": "Relationships"
+  },
+  "Jack of all trades, master of none": {
+    "meaning": "Aprendiz de todo, maestro de nada",
+    "topic": "Work"
+  },
+  "Keep your eyes peeled": {
+    "meaning": "Mantener los ojos bien abiertos / Estar atento",
+    "topic": "Awareness"
+  },
+  "Jump on the bandwagon": {
+    "meaning": "Subirse al carro / Seguir la tendencia",
+    "topic": "Society"
+  },
+  "Let bygones be bygones": {
+    "meaning": "Lo pasado, pasado / Dejar atrás rencores",
+    "topic": "Relationships"
+  },
+  "On thin ice": {
+    "meaning": "En terreno peligroso / Al borde del problema",
+    "topic": "Risk"
+  },
+  "Pull someone’s leg": {
+    "meaning": "Tomar el pelo a alguien",
+    "topic": "Humor"
+  },
+  "Up in the air": {
+    "meaning": "En el aire / Sin decidir",
+    "topic": "Decision Making"
+  },
+  "Wash your hands of something": {
+    "meaning": "Lavar las manos / Evitar responsabilidades",
+    "topic": "Responsibility"
+  }
+}
