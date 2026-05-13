@@ -322,7 +322,7 @@ elif mode == "Favorites":
             col1, col2 = st.columns([4, 1])
             with col1:
                 st.write("⭐", idiom)
-                st.write("Meaning:", idiom_map.get(idiom, "Unknown"))
+                st.write("Meaning:",idiom_map.get(idiom, {}).get("meaning", "Unknown"))
             with col2:
                 if st.button("Remove", key=f"remove_{idiom}"):
                     remove_favorite(conn, idiom)
