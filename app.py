@@ -54,10 +54,7 @@ if mode == "Explore Idioms":
             filtered.append(idiom)
             
     selected = st.selectbox("Choose idiom:", filtered)
-    selected_topic = st.selectbox(
-        "Choose Topic",
-        ["All"] + topics
-    )
+
     if selected:
         st.subheader("Natural Spanish Meaning")
         st.write(idiom_map[selected])
