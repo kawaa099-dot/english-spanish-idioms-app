@@ -13,10 +13,20 @@ import re
 
 # LOAD IDIOMS
 @st.cache_data
-def load_idioms(path="idioms.json"):
+def load_idioms(path="idiom2.json"):
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    return {k.lower(): v for k, v in data.items()}
+
+    cleaned = {}
+
+    for idiom, info in data.items():
+
+        cleaned[idiom.lower()] = {
+            "meaning": info.get("meaning", ""),
+            "topic": info.get("topic", "General")
+        }
+
+    return cleaned
 
 # AUDIO
 CACHE_DIR = pathlib.Path("audio_cache")
