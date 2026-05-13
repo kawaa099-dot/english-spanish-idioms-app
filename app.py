@@ -57,7 +57,7 @@ if mode == "Explore Idioms":
 
     if selected:
         st.subheader("Natural Spanish Meaning")
-        st.write(idiom_map[selected])
+        st.write(idiom_map[selected]["meaning"])
 
         st.subheader("Literal Translation")
         st.write(translate_literal(selected))
