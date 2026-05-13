@@ -31,9 +31,15 @@ mode = st.sidebar.selectbox(
 
 if mode == "Explore Idioms":
 
-    
     search = st.text_input("Search idiom:")
-    #filtered = [i for i in idioms if search.lower() in i.lower()]
+
+    topics = sorted(list(set(
+        v.get("topic", "General")
+        for v in idiom_map.values()
+    )))
+    
+    selected_topic = st.selectbox("Choose Topic", ["All"] + topics)
+#filtered = [i for i in idioms if search.lower() in i.lower()]   
     filtered = []
 
     for idiom in idioms:
