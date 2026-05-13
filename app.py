@@ -133,31 +133,35 @@ elif mode == "Idioms in sentences":
                         st.rerun()
 
 # QUIZ
-
 elif mode == "Quiz time!":
-
     st.header("🎮 Quiz")
 
+    # Initialize state FIRST, before anything else
     if "xp" not in st.session_state:
         st.session_state.xp = 0
-
     if "used_structures" not in st.session_state:
         st.session_state.used_structures = set()
-
     if "used_questions" not in st.session_state:
         st.session_state.used_questions = set()
 
     st.metric("XP", st.session_state.xp)
 
-    # ---------- INIT QUIZ ----------
-    if "quiz" not in st.session_state:
-        st.session_state.quiz = generate_adaptive_quiz(
-            conn,
-            idiom_map,
-            examples_map,
-            st.session_state.used_questions,
-            st.session_state.used_structures
-        )
+    if "quiz" not in st.session_state or st.session_state.quiz is None:
+        with st.spinner("Generating question..."):
+            st.session_state.quiz = generate_adaptive_quiz(
+                conn,
+                idiom_map,
+                examples_map,
+                st.session_state.used_questions,
+                st.session_state.used_structures
+            )
+
+    if st.session_state.quiz is None:
+        st.error("Could not generate a quiz question. The AI model may have failed. Try clicking New Question.")
+        if st.button("New Question"):
+            st.session_state.pop("quiz", None)
+            st.rerun()
+        st.stop()
 
     quiz = st.session_state.quiz
 
