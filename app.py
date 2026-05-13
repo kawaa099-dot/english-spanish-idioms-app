@@ -15,6 +15,11 @@ idiom_map = load_idioms("idiom2.json")
 idioms = sorted(idiom_map.keys())
 conn = init_db()
 examples_map = build_examples_map()
+##13/5
+topics = sorted(list(set(
+    v.get("topic", "General")
+    for v in idiom_map.values()
+)))
 
 # Sidebar
 mode = st.sidebar.selectbox(
@@ -28,9 +33,25 @@ if mode == "Explore Idioms":
 
     
     search = st.text_input("Search idiom:")
-    filtered = [i for i in idioms if search.lower() in i.lower()]
-    selected = st.selectbox("Choose idiom:", filtered)
+    #filtered = [i for i in idioms if search.lower() in i.lower()]
+    filtered = []
 
+    for idiom in idioms:
+    
+        matches_search = search.lower() in idiom.lower()
+        topic = idiom_map[idiom].get("topic", "General")
+        matches_topic = (
+            selected_topic == "All"
+            or topic == selected_topic
+        )
+        if matches_search and matches_topic:
+            filtered.append(idiom)
+            
+    selected = st.selectbox("Choose idiom:", filtered)
+    selected_topic = st.selectbox(
+        "Choose Topic",
+        ["All"] + topics
+    )
     if selected:
         st.subheader("Natural Spanish Meaning")
         st.write(idiom_map[selected])
@@ -55,7 +76,7 @@ if mode == "Explore Idioms":
         if st.button("⭐ Add to Favorites"):
             add_favorite(conn, selected)
             st.success("Added to favorites!")
-
+        
 
 # DETECT 
 
