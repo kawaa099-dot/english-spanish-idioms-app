@@ -88,10 +88,13 @@ elif mode == "Idioms in sentences":
 
     if st.button("Detect"):
         found = detect_idioms(text, idioms)
-        found = detect_idioms_ai(text, idiom_map)
-        
+        # use AI if no matching idioms
+        if not found:
+            found = detect_idioms_ai(text, idiom_map)
+
         if not found:
             st.info("No idioms detected.")
+        
         else:
             # Highlight detected idioms in the text
             highlighted_text = text
