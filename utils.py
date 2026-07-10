@@ -4,6 +4,7 @@ import tempfile
 from gtts import gTTS
 from datasets import load_dataset
 from transformers import MarianMTModel, MarianTokenizer
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import pathlib
 import streamlit as st
 import random
@@ -188,11 +189,29 @@ generator = load_generator()
 # Load ai used in detection of idiom in sentences
 @st.cache_resource
 def load_detector():
-    return pipeline(
-        "text-generation",
-        model="google/flan-t5-base"
-    )
+    model_name = "google/flan-t5-base"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    return tokenizer, model
 
+def detect_idioms_ai(text, idiom_map):
+    tokenizer, model = load_detector()
+    idiom_list = list(idiom_map.keys())
+
+    prompt = f"""From this list of idioms: {", ".join(idiom_list)}
+            Which idiom best matches the meaning of this sentence?
+            Sentence: "{text}"
+            Answer with only the idiom, exactly as written in the list."""
+
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+    outputs = model.generate(**inputs, max_new_tokens=20)
+    guess = tokenizer.decode(outputs[0], skip_special_tokens=True).strip().lower()
+
+    matches = [i for i in idiom_list if i.lower() == guess]
+    if not matches:
+        matches = [i for i in idiom_list if i.lower() in guess or guess in i.lower()]
+
+    return matches
 detector = load_detector()
 
 def normalize_structure(sentence):
