@@ -189,7 +189,7 @@ generator = load_generator()
 @st.cache_resource
 def load_detector():
     return pipeline(
-        "text2text-generation",
+        "text-generation",
         model="google/flan-t5-base"
     )
 
