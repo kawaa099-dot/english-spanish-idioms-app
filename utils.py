@@ -212,7 +212,6 @@ def detect_idioms_ai(text, idiom_map):
         matches = [i for i in idiom_list if i.lower() in guess or guess in i.lower()]
 
     return matches
-detector = load_detector()
 
 def normalize_structure(sentence):
     """
