@@ -183,7 +183,18 @@ def load_generator():
     )
 
 generator = load_generator()
-    
+
+#DETECTION IN SENTENCES
+# Load ai used in detection of idiom in sentences
+@st.cache_resource
+def load_detector():
+    return pipeline(
+        "text2text-generation",
+        model="google/flan-t5-base"
+    )
+
+detector = load_detector()
+
 def normalize_structure(sentence):
     """
     Simplify sentence structure for repetition detection.
@@ -458,34 +469,21 @@ def generate_adaptive_quiz(
 def detect_idioms(text, idioms):
     text_lower = text.lower()
     return [i for i in idioms if i.lower() in text_lower]
-
-
-def detect_idioms_ai(text, idiom_map):
+    
+def detect_idioms_ai(text):
 
     prompt = f"""
-    User text:
+    Which English idiom best matches this meaning?
+
+    Meaning:
     {text}
 
-    Available idioms:
-    {", ".join(idiom_map.keys())}
-
-    Which idioms best match the meaning of the user's text?
-
-    Return only idiom names separated by commas.
+    Idiom:
     """
 
-    result = generator(
+    result = detector(
         prompt,
-        max_new_tokens=50,
-        do_sample=False
+        max_new_tokens=20
     )
 
-    output = result[0]["generated_text"]
-
-    found = []
-
-    for idiom in idiom_map.keys():
-        if idiom.lower() in output.lower():
-            found.append(idiom)
-
-    return found
+    return result[0]["generated_text"]
