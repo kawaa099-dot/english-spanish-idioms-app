@@ -458,3 +458,34 @@ def generate_adaptive_quiz(
 def detect_idioms(text, idioms):
     text_lower = text.lower()
     return [i for i in idioms if i.lower() in text_lower]
+
+
+def detect_idioms_ai(text, idiom_map):
+
+    prompt = f"""
+    User text:
+    {text}
+
+    Available idioms:
+    {", ".join(idiom_map.keys())}
+
+    Which idioms best match the meaning of the user's text?
+
+    Return only idiom names separated by commas.
+    """
+
+    result = generator(
+        prompt,
+        max_new_tokens=50,
+        do_sample=False
+    )
+
+    output = result[0]["generated_text"]
+
+    found = []
+
+    for idiom in idiom_map.keys():
+        if idiom.lower() in output.lower():
+            found.append(idiom)
+
+    return found
