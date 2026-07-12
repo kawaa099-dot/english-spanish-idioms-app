@@ -374,143 +374,83 @@ def generate_adaptive_quiz(
     idiom_map,
     examples_map,
     used_questions,
-    used_structures
+    used_structures,
+    max_ai_attempts=2
 ):
-    # idioms from JSON file
+    import time
     idioms = list(idiom_map.keys())
-    # Choose unused idiom
     available = [i for i in idioms if i not in used_questions]
-    # reset if all used
+
     if not available:
         used_questions.clear()
         available = idioms[:]
-    # prioritize weak idioms
+
     weak = get_weak_idioms(conn)
     if weak:
         weak_available = [i for i in available if i in weak]
         if weak_available:
             available = weak_available
+
     random.shuffle(available)
-    # AI generation
+
+    # ---------- DATASET FIRST (fast) ----------
+    t0 = time.time()
     for idiom in available:
-        sentence = generate_ai_sentence(
-            idiom,
-            examples_map,
-            used_structures
-        )
-        if not sentence:
-            continue
-        # ensure correct idiom exists
-        pattern = re.compile(
-            r'\b' + re.escape(idiom) + r'\b',
-            re.IGNORECASE
-        )
-        if not pattern.search(sentence):
-            continue
-        used_questions.add(idiom)
-        question_sentence = pattern.sub(
-            "_____",
-            sentence
-        )
-        # ONLY options from JSON file
-        wrong_pool = [
-            i for i in idioms
-            if i != idiom and i.lower() in idiom_map
-        ]
-        wrong_options = random.sample(
-            wrong_pool,
-            min(3, len(wrong_pool))
-        )
-        options = wrong_options + [idiom]
-        random.shuffle(options)
-        return {
-            "question": question_sentence,
-            "options": options,
-            "answer": idiom
-        }
-    # DATASET FALLBACK
-    valid_examples = []
-    for idiom, examples in examples_map.items():
-        # skip idioms not in JSON
-        if idiom not in idioms:
-            continue
-        if idiom in used_questions:
-            continue
+        examples = examples_map.get(idiom.lower(), [])
         for ex in examples:
             sentence = ex.get("en", "")
             if not sentence:
                 continue
-            pattern = re.compile(
-                r'\b' + re.escape(idiom) + r'\b',
-                re.IGNORECASE
-            )
+            pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
             if not pattern.search(sentence):
                 continue
             structure = normalize_structure(sentence)
             if structure in used_structures:
                 continue
             used_structures.add(structure)
-            valid_examples.append((idiom, sentence))
-    # reset memory if exhausted — return None instead of recursing
-    if not valid_examples:
-        used_questions.clear()
-        used_structures.clear()
-        return None
-    idiom, sentence = random.choice(valid_examples)
-    used_questions.add(idiom)
-    pattern = re.compile(
-        r'\b' + re.escape(idiom) + r'\b',
-        re.IGNORECASE
-    )
-    question_sentence = pattern.sub(
-        "_____",
-        sentence
-    )
-    # ONLY options from JSON
-    wrong_pool = [
-        i for i in idioms
-        if i != idiom and i.lower() in idiom_map
-    ]
-    wrong_options = random.sample(
-        wrong_pool,
-        min(3, len(wrong_pool))
-    )
-    options = wrong_options + [idiom]
-    random.shuffle(options)
-    return {
-        "question": question_sentence,
-        "options": options,
-        "answer": idiom
-    }
-    
-    t0 = time.time()
-    # ... your dataset-first loop ...
-    print(f"[TIMING] dataset lookup: {time.time() - t0:.2f}s")
-    
-    t1 = time.time()
-    # ... your AI fallback loop ...
-    print(f"[TIMING] AI generation: {time.time() - t1:.2f}s")
+            used_questions.add(idiom)
+            question_sentence = pattern.sub("_____", sentence)
+            wrong_pool = [i for i in idioms if i != idiom]
+            wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
+            options = wrong_options + [idiom]
+            random.shuffle(options)
+            print(f"[TIMING] dataset lookup: {time.time() - t0:.2f}s")
+            return {
+                "question": question_sentence,
+                "options": options,
+                "answer": idiom
+            }
+    print(f"[TIMING] dataset lookup (no match): {time.time() - t0:.2f}s")
 
+    # ---------- AI FALLBACK, CAPPED ----------
+    t1 = time.time()
+    for idiom in available[:max_ai_attempts]:
+        sentence = generate_ai_sentence(idiom, examples_map, used_structures)
+        if not sentence:
+            continue
+        pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
+        if not pattern.search(sentence):
+            continue
+        used_questions.add(idiom)
+        question_sentence = pattern.sub("_____", sentence)
+        wrong_pool = [i for i in idioms if i != idiom]
+        wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
+        options = wrong_options + [idiom]
+        random.shuffle(options)
+        print(f"[TIMING] AI generation: {time.time() - t1:.2f}s")
+        return {
+            "question": question_sentence,
+            "options": options,
+            "answer": idiom
+        }
+    print(f"[TIMING] AI generation (failed): {time.time() - t1:.2f}s")
+
+    used_questions.clear()
+    used_structures.clear()
+    return None
     
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
     text_lower = text.lower()
     return [i for i in idioms if i.lower() in text_lower]
     
-def detect_idioms_ai(text):
-
-    prompt = f"""
-    Which English idiom best matches this meaning?
-
-    Meaning:
-    {text}
-
-    Idiom:
-    """
-
-    result = detector(
-        prompt,
-        max_new_tokens=20
-    )
-
-    return result[0]["generated_text"]
