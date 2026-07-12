@@ -191,21 +191,24 @@ elif mode == "Quiz time!":
 
     # ---------- NEW QUESTION ----------
     if st.button("New Question"):
-
-        new_quiz = generate_adaptive_quiz(
-            conn,
-            idiom_map,
-            examples_map,
-            st.session_state.used_questions,
-            st.session_state.used_structures
-        )
-
-        # store used items properly
-        st.session_state.used_questions.add(new_quiz["answer"])
-
-        st.session_state.quiz = new_quiz
-
-        st.rerun()
+        with st.spinner("Generating question..."):
+            new_quiz = generate_adaptive_quiz(
+                conn,
+                idiom_map,
+                examples_map,
+                st.session_state.used_questions,
+                st.session_state.used_structures
+            )
+        #the spinner
+        if new_quiz is None:
+            st.error("Could not generate a new question. Try again.")
+        else:
+            # store used items properly
+            st.session_state.used_questions.add(new_quiz["answer"])
+    
+            st.session_state.quiz = new_quiz
+    
+            st.rerun()
 
 
 # ANALYTICS
