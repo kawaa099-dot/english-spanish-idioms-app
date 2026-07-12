@@ -274,7 +274,7 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
 
             result = generator(
                 prompt,
-                max_new_tokens=40,
+                max_new_tokens=25,
                 do_sample=True,
                 temperature=1.0,
                 top_k=50,
