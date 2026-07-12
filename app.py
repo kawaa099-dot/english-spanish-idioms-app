@@ -101,7 +101,7 @@ elif mode == "Idioms in sentences":
             for idiom in found:
                 highlighted_text = highlighted_text.replace(
                     idiom,
-                    f"<span style='background-color: #ffff00; font-weight:bold'>{idiom}</span>"
+                    f"<span style='background-color: #FFAB91; font-weight:bold'>{idiom}</span>"
                 )
             st.markdown("### Your Text with Detected Idioms")
             st.markdown(highlighted_text, unsafe_allow_html=True)
