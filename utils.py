@@ -483,6 +483,15 @@ def generate_adaptive_quiz(
         "answer": idiom
     }
     
+    t0 = time.time()
+    # ... your dataset-first loop ...
+    print(f"[TIMING] dataset lookup: {time.time() - t0:.2f}s")
+    
+    t1 = time.time()
+    # ... your AI fallback loop ...
+    print(f"[TIMING] AI generation: {time.time() - t1:.2f}s")
+
+    
 # DETECT IDIOMS
 def detect_idioms(text, idioms):
     text_lower = text.lower()
