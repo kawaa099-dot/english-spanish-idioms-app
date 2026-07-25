@@ -155,9 +155,15 @@ def build_examples_map():
             examples_map[key].append({"en": en or "", "es": es or ""})
 
     try:
+        #ds1 = load_dataset("fdelucaf/IdioTS")
+        #for row in ds1["train"]:
+        #    if row["sentence_has_idiom"]:
+        #        add_example(row["idiom"], row.get("en", ""), row.get("es", ""))
+
         ds1 = load_dataset("fdelucaf/IdioTS")
         for row in ds1["train"]:
-            if row["sentence_has_idiom"]:
+            value = str(row["sentence_has_idiom"]).strip().lower()
+            if value == "true":
                 add_example(row["idiom"], row.get("en", ""), row.get("es", ""))
 
         ds2 = load_dataset("UCSC-Admire/idiom-SFT-dataset-561-2024-12-06_00-40-30")
