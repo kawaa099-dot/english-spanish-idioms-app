@@ -3,7 +3,7 @@ import uuid
 
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
-    detect_idioms, translate_literal, build_examples_map, remove_favorite,
+    detect_idioms, translate_literal, normalize_idiom, build_examples_map, remove_favorite,
     generate_adaptive_quiz, update_analytics, get_learning_stats, detect_idioms_ai
 )
 
