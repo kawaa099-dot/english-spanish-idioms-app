@@ -63,7 +63,7 @@ if mode == "Explore Idioms":
         st.write(translate_literal(selected))
 
         st.subheader("Examples:")
-        examples = examples_map.get(selected.lower(), [])
+        examples = examples_map.get(normalize_idiom(selected), []) #changed
         if examples:
             for ex in examples[:3]:
                 st.write("**English:**", ex["en"])
@@ -114,7 +114,7 @@ elif mode == "Idioms in sentences":
                     st.write("**Literal Translation:**", translate_literal(idiom))
 
                     # Examples
-                    examples = examples_map.get(idiom.lower(), [])
+                    examples = examples_map.get(normalize_idiom(selected), []) #changed
                     if examples:
                         st.subheader("Examples:")
                         for ex in examples[:2]:
