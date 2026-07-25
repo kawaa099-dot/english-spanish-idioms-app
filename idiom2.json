@@ -48,7 +48,7 @@
     "topic": "Communication"
   },
   "kill two birds with one stone": {
-    "meaning": "matar dos pájaros de un tiro",
+    "meaning": "conseguir dos objetivos con una sola acción",
     "topic": "Efficiency"
   },
   "let the cat out of the bag": {
@@ -371,4 +371,108 @@
     "meaning": "Lavar las manos / Evitar responsabilidades",
     "topic": "Responsibility"
   }
+  "The ship has sailed": {
+    "meaning": "ya es demasiado tarde / la oportunidad ha pasado",
+    "topic": "Time"
+  },
+   "Walking on eggshells": {
+     "meaning": "andar con pies de plomo / actuar con mucho cuidado",
+     "topic": "Relationships"
+   },
+   "Working your fingers to the bone": {
+     "meaning": "trabajar muy duro sin descanso",
+     "topic": "Work"
+   },
+   "Speak of the Devil": {
+     "meaning": "hablando del rey de Roma",
+     "topic": "Communication"
+   },
+   "Green thumb": {
+     "meaning": "tener buena mano para las plantas",
+     "topic": "Hobbies"
+   },
+   "On the fence": {
+     "meaning": "estar indeciso / no saber qué decidir",
+     "topic": "Decision Making"
+   },
+   "Ring a bell": {
+     "meaning": "sonar familiar / resultar conocido",
+     "topic": "Memory"
+   },
+   "Black eye": {
+     "meaning": "ojo morado",
+     "topic": "Health"
+   },
+   "Turning the tables": {
+     "meaning": "dar la vuelta a la situación",
+     "topic": "Success & Failure"
+   },
+   "Wearing many hats": {
+     "meaning": "desempeñar muchos roles o tareas",
+     "topic": "Work"
+   },
+   "Old school": {
+     "meaning": "tradicional / de la vieja escuela",
+     "topic": "Society"
+   },
+   "Kick the bucket": {
+     "meaning": "estirar la pata / morir",
+     "topic": "Life & Death"
+   },
+   "Hot potato": {
+     "meaning": "tema delicado o controvertido",
+     "topic": "Problems"
+   },
+   "Showing one's true colors": {
+     "meaning": "mostrar la verdadera personalidad",
+     "topic": "Personality"
+   },
+   "Turn a blind eye": {
+     "meaning": "hacer la vista gorda",
+     "topic": "Responsibility"
+   },
+   "Tie the knot": {
+     "meaning": "casarse",
+     "topic": "Relationships"
+   },
+   "Knock someone's socks off": {
+     "meaning": "impresionar muchísimo a alguien",
+     "topic": "Emotions"
+   },
+   "A stone's throw away": {
+     "meaning": "a un paso / muy cerca",
+     "topic": "Travel"
+   },
+   "Sit tight": {
+     "meaning": "esperar pacientemente",
+     "topic": "Patience"
+   },
+   "Drive someone nuts": {
+     "meaning": "volver loco a alguien / sacar de quicio",
+     "topic": "Emotions"
+   },
+   "Back to square one": {
+     "meaning": "volver al punto de partida",
+     "topic": "Success & Failure"
+   },
+   "Cut the mustard": {
+     "meaning": "estar a la altura / cumplir las expectativas",
+     "topic": "Success & Failure"
+   },
+   "Cold turkey": {
+     "meaning": "dejar algo de golpe y sin ayuda",
+     "topic": "Health"
+   },
+   "Be a night owl": {
+     "meaning": "ser noctámbulo",
+     "topic": "Daily Life"
+   },
+   "Be over the moon": {
+     "meaning": "estar muy feliz / encantado",
+     "topic": "Emotions"
+   },
+   "Beat around the bush": {
+     "meaning": "irse por las ramas / no ir al grano",
+     "topic": "Communication"
+   }
 }
