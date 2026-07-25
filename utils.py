@@ -12,6 +12,18 @@ from functools import lru_cache
 from transformers import pipeline
 import re
 
+def normalize_idiom(text):
+    """
+    Normalize an idiom string for consistent dictionary keys / matching:
+    - lowercase
+    - strip leading/trailing whitespace
+    - strip a leading "to " (dataset idioms sometimes include the infinitive marker)
+    """
+    text = text.strip().lower()
+    if text.startswith("to "):
+        text = text[3:].strip()
+    return text
+    
 # LOAD IDIOMS
 @st.cache_data
 def load_idioms(path="idiom2.json"):
@@ -22,7 +34,7 @@ def load_idioms(path="idiom2.json"):
 
     for idiom, info in data.items():
 
-        cleaned[idiom.lower()] = {
+        cleaned[normalize_idiom(idiom)] = {
             "meaning": info.get("meaning", ""),
             "topic": info.get("topic", "General")
         }
@@ -148,7 +160,8 @@ def build_examples_map():
     examples_map = {}
 
     def add_example(key, en, es):
-        key = key.lower().strip()
+        #key = key.lower().strip()
+        key = normalize_idiom(key)
         if key not in examples_map:
             examples_map[key] = []
         if en or es:
@@ -339,8 +352,8 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
             continue
 
     # ---------- FALLBACK TO DATASET ----------
-    examples = examples_map.get(idiom.lower(), [])
-
+    #examples = examples_map.get(idiom.lower(), [])
+    examples = examples_map.get(normalize_idiom(idiom), [])
     valid_examples = []
 
     for ex in examples:
@@ -411,7 +424,7 @@ def generate_adaptive_quiz(
     # ---------- DATASET FIRST (fast) ----------
     t0 = time.time()
     for idiom in available:
-        examples = examples_map.get(idiom.lower(), [])
+        examples = examples_map.get(normalize_idiom(idiom), []) #changed
         for ex in examples:
             sentence = ex.get("en", "")
             if not sentence:
