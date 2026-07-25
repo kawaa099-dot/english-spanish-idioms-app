@@ -20,7 +20,7 @@
     "topic": "Communication"
   },
   "a blessing in disguise": {
-    "meaning": "bendición disfrazada",
+    "meaning": "bendición disfrazada/no hay mal que por bien no venga",
     "topic": "Success & Failure"
   },
   "bite the bullet": {
@@ -372,7 +372,7 @@
     "topic": "Responsibility"
   },
   "The ship has sailed": {
-    "meaning": "ya es demasiado tarde / la oportunidad ha pasado",
+    "meaning": "se te pasó el tren / ya es demasiado tarde",
     "topic": "Time"
   },
    "Walking on eggshells": {
@@ -380,7 +380,7 @@
      "topic": "Relationships"
    },
    "Working your fingers to the bone": {
-     "meaning": "trabajar muy duro sin descanso",
+     "meaning": "trabajar como un burro / trabajar muy duro sin descanso",
      "topic": "Work"
    },
    "Speak of the Devil": {
@@ -392,7 +392,7 @@
      "topic": "Hobbies"
    },
    "On the fence": {
-     "meaning": "estar indeciso / no saber qué decidir",
+     "meaning": "estar entre dos aguas / estar indeciso",
      "topic": "Decision Making"
    },
    "Ring a bell": {
@@ -404,11 +404,11 @@
      "topic": "Health"
    },
    "Turning the tables": {
-     "meaning": "dar la vuelta a la situación",
+     "meaning": "darle la vuelta a la tortilla / dar la vuelta a la situación",
      "topic": "Success & Failure"
    },
    "Wearing many hats": {
-     "meaning": "desempeñar muchos roles o tareas",
+     "meaning": "desempeñar muchos papeles / hacer de todo",
      "topic": "Work"
    },
    "Old school": {
@@ -420,11 +420,11 @@
      "topic": "Life & Death"
    },
    "Hot potato": {
-     "meaning": "tema delicado o controvertido",
+     "meaning": "tema espinoso o delicado",
      "topic": "Problems"
    },
    "Showing one's true colors": {
-     "meaning": "mostrar la verdadera personalidad",
+     "meaning": "mostrar su verdadera cara",
      "topic": "Personality"
    },
    "Turn a blind eye": {
@@ -436,11 +436,11 @@
      "topic": "Relationships"
    },
    "Knock someone's socks off": {
-     "meaning": "impresionar muchísimo a alguien",
+     "meaning": "dejar a alguien con la boca abierta / impresionar muchísimo a alguien",
      "topic": "Emotions"
    },
    "A stone's throw away": {
-     "meaning": "a un paso / muy cerca",
+     "meaning": "a tiro de piedra / muy cerca",
      "topic": "Travel"
    },
    "Sit tight": {
@@ -452,7 +452,7 @@
      "topic": "Emotions"
    },
    "Back to square one": {
-     "meaning": "volver al punto de partida",
+     "meaning": "volver a la casilla de salida / volver al punto de partida",
      "topic": "Success & Failure"
    },
    "Cut the mustard": {
@@ -468,11 +468,11 @@
      "topic": "Daily Life"
    },
    "Be over the moon": {
-     "meaning": "estar muy feliz / encantado",
+     "meaning": "estar en las nubes de felicidad / estar muy feliz / encantado",
      "topic": "Emotions"
    },
    "Beat around the bush": {
-     "meaning": "irse por las ramas / no ir al grano",
+     "meaning": "andar por las ramas / no ir al grano",
      "topic": "Communication"
    }
 }
