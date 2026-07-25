@@ -161,13 +161,22 @@ def build_examples_map():
                 add_example(row["idiom"], row.get("en", ""), row.get("es", ""))
 
         ds2 = load_dataset("UCSC-Admire/idiom-SFT-dataset-561-2024-12-06_00-40-30")
+        #for row in ds2["train"]:
+        #    idiom = row.get("idiom") or row.get("Idiomatic Expression") or ""
+        #    en = row.get("en") or row.get("English") or ""
+        #    es = row.get("es") or row.get("Spanish") or ""
+        #    if idiom:
+        #        add_example(idiom, en, es)
         for row in ds2["train"]:
+            usage_type = (row.get("type") or row.get("label") or "").lower()
+            if usage_type != "idiomatic":
+                continue  # skip literal / distractor sentences
+
             idiom = row.get("idiom") or row.get("Idiomatic Expression") or ""
             en = row.get("en") or row.get("English") or ""
             es = row.get("es") or row.get("Spanish") or ""
             if idiom:
                 add_example(idiom, en, es)
-
     except Exception:
         pass
 
