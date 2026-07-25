@@ -114,7 +114,7 @@ elif mode == "Idioms in sentences":
                     st.write("**Literal Translation:**", translate_literal(idiom))
 
                     # Examples
-                    examples = examples_map.get(normalize_idiom(selected), []) #changed
+                    examples = examples_map.get(normalize_idiom(idiom), []) #changed
                     if examples:
                         st.subheader("Examples:")
                         for ex in examples[:2]:
