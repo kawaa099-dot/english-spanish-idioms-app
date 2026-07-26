@@ -4,7 +4,8 @@ import tempfile
 from gtts import gTTS
 from datasets import load_dataset
 from transformers import MarianMTModel, MarianTokenizer
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+#from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from sentence_transformers import SentenceTransformer, util
 import pathlib
 import streamlit as st
 import random
@@ -214,32 +215,42 @@ def load_generator():
 generator = load_generator()
 
 #DETECTION IN SENTENCES
-# Load ai used in detection of idiom in sentences
 @st.cache_resource
-def load_detector():
-    model_name = "google/flan-t5-base"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    return tokenizer, model
+def load_similarity_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
 
-def detect_idioms_ai(text, idiom_map):
-    tokenizer, model = load_detector()
-    idiom_list = list(idiom_map.keys())
+@st.cache_data(show_spinner=False)
+def _get_idiom_meaning_embeddings(idiom_map_tuple):
+    """
+    Cached separately from the model itself, so meanings only get
+    re-embedded when idiom_map actually changes, not on every call.
+    idiom_map_tuple: tuple of (idiom, meaning) pairs, since dicts aren't hashable
+    for st.cache_data.
+    """
+    model = load_similarity_model()
+    idioms = [pair[0] for pair in idiom_map_tuple]
+    meanings = [pair[1] for pair in idiom_map_tuple]
+    embeddings = model.encode(meanings, convert_to_tensor=True)
+    return idioms, embeddings
 
-    prompt = f"""From this list of idioms: {", ".join(idiom_list)}
-            Which idiom best matches the meaning of this sentence?
-            Sentence: "{text}"
-            Answer with only the idiom, exactly as written in the list."""
+def detect_idioms_ai(text, idiom_map, threshold=0.5):
+    model = load_similarity_model()
 
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
-    outputs = model.generate(**inputs, max_new_tokens=20)
-    guess = tokenizer.decode(outputs[0], skip_special_tokens=True).strip().lower()
+    idiom_map_tuple = tuple(
+        (idiom, info["meaning"]) for idiom, info in idiom_map.items()
+    )
+    idioms, meaning_embeddings = _get_idiom_meaning_embeddings(idiom_map_tuple)
 
-    matches = [i for i in idiom_list if i.lower() == guess]
-    if not matches:
-        matches = [i for i in idiom_list if i.lower() in guess or guess in i.lower()]
+    text_embedding = model.encode(text, convert_to_tensor=True)
+    scores = util.cos_sim(text_embedding, meaning_embeddings)[0]
 
-    return matches
+    best_idx = int(scores.argmax())
+    best_score = float(scores[best_idx])
+
+    if best_score < threshold:
+        return []
+
+    return [idioms[best_idx]]
 
 def normalize_structure(sentence):
     """
