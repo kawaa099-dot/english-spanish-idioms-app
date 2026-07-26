@@ -37,7 +37,7 @@ def load_idioms(path="idiom2.json"):
 
         cleaned[normalize_idiom(idiom)] = {
             "meaning": info.get("meaning", ""),
-            "topic": info.get("topic", "General")
+            "topic": info.get("topic", "General"),
             "gloss": info.get("gloss", "")   # ← add this line
         }
 
