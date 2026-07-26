@@ -219,6 +219,11 @@ generator = load_generator()
 @st.cache_resource
 def load_similarity_model():
     return SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+
+def build_embedding_text(idiom, info):
+    gloss = info.get("gloss", "")
+    return f"{gloss}. {info['meaning']}" if gloss else info["meaning"]
+    
 @st.cache_data(show_spinner=False)
 def _get_idiom_meaning_embeddings(idiom_map_tuple):
     """
@@ -237,7 +242,9 @@ def detect_idioms_ai(text, idiom_map, threshold=0.5):
     model = load_similarity_model()
 
     idiom_map_tuple = tuple(
-        (idiom, info["meaning"]) for idiom, info in idiom_map.items()
+        (idiom, build_embedding_text(idiom, info))  
+        #(idiom, info["meaning"]) 
+        for idiom, info in idiom_map.items()
     )
     idioms, meaning_embeddings = _get_idiom_meaning_embeddings(idiom_map_tuple)
 
