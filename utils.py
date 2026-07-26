@@ -215,10 +215,10 @@ def load_generator():
 generator = load_generator()
 
 #DETECTION IN SENTENCES
+ #   return SentenceTransformer('all-MiniLM-L6-v2')
 @st.cache_resource
 def load_similarity_model():
-    return SentenceTransformer('all-MiniLM-L6-v2')
-
+    return SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
 @st.cache_data(show_spinner=False)
 def _get_idiom_meaning_embeddings(idiom_map_tuple):
     """
@@ -233,7 +233,26 @@ def _get_idiom_meaning_embeddings(idiom_map_tuple):
     embeddings = model.encode(meanings, convert_to_tensor=True)
     return idioms, embeddings
 
-def detect_idioms_ai(text, idiom_map, threshold=0.5):
+#def detect_idioms_ai(text, idiom_map, threshold=0.5):
+#    model = load_similarity_model()
+
+#    idiom_map_tuple = tuple(
+#        (idiom, info["meaning"]) for idiom, info in idiom_map.items()
+#    )
+#    idioms, meaning_embeddings = _get_idiom_meaning_embeddings(idiom_map_tuple)
+
+#    text_embedding = model.encode(text, convert_to_tensor=True)
+#    scores = util.cos_sim(text_embedding, meaning_embeddings)[0]
+
+#    best_idx = int(scores.argmax())
+#    best_score = float(scores[best_idx])
+
+#    if best_score < threshold:
+#        return []
+
+#    return [idioms[best_idx]]
+
+def detect_idioms_ai(text, idiom_map, top_k=3, threshold=0.35):
     model = load_similarity_model()
 
     idiom_map_tuple = tuple(
@@ -244,14 +263,15 @@ def detect_idioms_ai(text, idiom_map, threshold=0.5):
     text_embedding = model.encode(text, convert_to_tensor=True)
     scores = util.cos_sim(text_embedding, meaning_embeddings)[0]
 
-    best_idx = int(scores.argmax())
-    best_score = float(scores[best_idx])
+    ranked = sorted(
+        zip(idioms, scores.tolist()),
+        key=lambda pair: pair[1],
+        reverse=True
+    )
 
-    if best_score < threshold:
-        return []
-
-    return [idioms[best_idx]]
-
+    suggestions = [idiom for idiom, score in ranked[:top_k] if score >= threshold]
+    return suggestions
+    
 def normalize_structure(sentence):
     """
     Simplify sentence structure for repetition detection.
