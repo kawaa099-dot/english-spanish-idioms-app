@@ -110,7 +110,8 @@ elif mode == "Idioms in sentences":
             # Show idiom details
             for idiom in found:
                 with st.expander(f"🔹 {idiom}"):
-                    st.write("**Meaning:**", idiom_map[idiom])
+                    st.write("**Meaning:**", idiom_map[idiom]["meaning"])
+                    st.caption(f"Topic: {idiom_map[idiom].get('topic', 'General')}")
                     st.write("**Literal Translation:**", translate_literal(idiom))
 
                     # Examples
