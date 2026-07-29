@@ -4,7 +4,7 @@ import tempfile
 from gtts import gTTS
 from datasets import load_dataset
 from transformers import MarianMTModel, MarianTokenizer
-#from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 import pathlib
 import streamlit as st
@@ -244,7 +244,7 @@ def _get_idiom_meaning_embeddings(idiom_map_tuple):
     meanings = [pair[1] for pair in idiom_map_tuple]
     embeddings = model.encode(meanings, convert_to_tensor=True)
     return idioms, embeddings
-
+# DETECT IDIOMS
 def detect_idioms_ai(text, idiom_map, threshold=0.5):
     model = load_similarity_model()
 
@@ -265,6 +265,10 @@ def detect_idioms_ai(text, idiom_map, threshold=0.5):
         return []
 
     return [idioms[best_idx]]
+
+def detect_idioms(text, idioms):
+    text_lower = text.lower()
+    return [i for i in idioms if i.lower() in text_lower]
 
 #def detect_idioms_ai(text, idiom_map, top_k=3, threshold=0.35):
  #   model = load_similarity_model()
@@ -548,8 +552,4 @@ def generate_adaptive_quiz(
     used_structures.clear()
     return None
     
-# DETECT IDIOMS
-def detect_idioms(text, idioms):
-    text_lower = text.lower()
-    return [i for i in idioms if i.lower() in text_lower]
     
