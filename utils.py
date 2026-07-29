@@ -507,7 +507,7 @@ def generate_adaptive_quiz(
     examples_map,
     used_questions,
     used_structures,
-    max_ai_attempts=2
+    max_ai_attempts=5 # bef:2
 ):
     import time
     idioms = list(idiom_map.keys())
@@ -525,58 +525,25 @@ def generate_adaptive_quiz(
 
     random.shuffle(available)
 
-    # ---------- DATASET FIRST (fast) ----------
     t0 = time.time()
-    for idiom in available:
-        examples = examples_map.get(normalize_idiom(idiom), []) #changed
-        for ex in examples:
-            sentence = ex.get("en", "")
-            if not sentence:
-                continue
-            pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
-            if not pattern.search(sentence):
-                continue
-            structure = normalize_structure(sentence)
-            if structure in used_structures:
-                continue
-            used_structures.add(structure)
-            used_questions.add(idiom)
-            question_sentence = pattern.sub("_____", sentence)
-            wrong_pool = [i for i in idioms if i != idiom]
-            wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
-            options = wrong_options + [idiom]
-            random.shuffle(options)
-            print(f"[TIMING] dataset lookup: {time.time() - t0:.2f}s")
-            return {
-                "question": question_sentence,
-                "options": options,
-                "answer": idiom
-            }
-    print(f"[TIMING] dataset lookup (no match): {time.time() - t0:.2f}s")
-
-    # ---------- AI FALLBACK, CAPPED ----------
-    t1 = time.time()
-    for idiom in available[:max_ai_attempts]:
+    for idiom in available[:max_attempts]:
         sentence = generate_ai_sentence(idiom, examples_map, used_structures)
         if not sentence:
             continue
-        pattern = re.compile(r'\b' + re.escape(idiom) + r'\b', re.IGNORECASE)
-        if not pattern.search(sentence):
-            continue
+
         used_questions.add(idiom)
-        question_sentence = pattern.sub("_____", sentence)
         wrong_pool = [i for i in idioms if i != idiom]
         wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
         options = wrong_options + [idiom]
         random.shuffle(options)
-        print(f"[TIMING] AI generation: {time.time() - t1:.2f}s")
+        print(f"[TIMING] question generated: {time.time() - t0:.2f}s")
         return {
-            "question": question_sentence,
+            "question": sentence,
             "options": options,
             "answer": idiom
         }
-    print(f"[TIMING] AI generation (failed): {time.time() - t1:.2f}s")
 
+    print(f"[TIMING] all attempts failed: {time.time() - t0:.2f}s")
     used_questions.clear()
     used_structures.clear()
     return None
