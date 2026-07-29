@@ -206,14 +206,20 @@ def build_examples_map():
 # QUIZ GENERATION
 
 # Load once
+#def load_generator():
+#    return pipeline(
+#        "text-generation",
+#        model="distilgpt2"
+#    )
+    
+#generator = load_generator()
 @st.cache_resource
 def load_generator():
-    return pipeline(
-        "text-generation",
-        model="distilgpt2"
-    )
+    model_name = "google/flan-t5-base"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    return tokenizer, model
 
-generator = load_generator()
 
 #DETECTION IN SENTENCES
  #   return SentenceTransformer('all-MiniLM-L6-v2')
@@ -307,88 +313,133 @@ def normalize_structure(sentence):
     return " ".join(words[:3])
 
 def generate_ai_sentence(idiom, examples_map, used_structures):
+    tokenizer, model = load_generator()
 
-    subjects = [
-        "My boss", "The kids", "A stranger", "Our team",
-        "The company", "Her friend", "The teacher",
-        "Someone", "People", "The situation"
-    ]
+    subjects = ["My boss", "The kids", "A stranger", "Our team", "The company",
+                "Her friend", "The teacher", "Someone", "People", "The situation"]
+    tones = ["casual", "professional", "funny", "dramatic", "everyday"]
+    banned_phrases = ["i decided", "he decided", "she decided", "decided to"]
 
-    tones = [
-        "casual", "professional", "funny",
-        "dramatic", "everyday"
-    ]
-
-    banned_phrases = [
-        "i decided",
-        "he decided",
-        "she decided",
-        "decided to"
-    ]
-
-    for _ in range(8):
-
+    for _ in range(4):  # retries needed
         try:
-
             subject = random.choice(subjects)
             tone = random.choice(tones)
 
-            prompt = f"""
-            Write one natural {tone} English sentence using the idiom "{idiom}".
-            Use "{subject}" as the subject.
-            Make it conversational and realistic.
-            """
+            prompt = (
+                f'Write one natural {tone} English sentence using the idiom "{idiom}". '
+                f'Use "{subject}" as the subject. Make it conversational and realistic.'
+            )
 
-            result = generator(
-                prompt,
-                max_new_tokens=25,
+            inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=40,
                 do_sample=True,
                 temperature=1.0,
                 top_k=50,
                 top_p=0.95,
                 repetition_penalty=1.2,
-                truncation=True
             )
+            sentence = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
-            sentence = result[0]["generated_text"]
-            sentence = sentence.replace(prompt, "").strip()
-
-            # Basic validation
-            if not sentence:
+            if not sentence or len(sentence.split()) < 5:
                 continue
-
-            if len(sentence.split()) < 5:
-                continue
-
             if idiom.lower() not in sentence.lower():
                 continue
-
-            lower = sentence.lower()
-
-            # Reject repetitive templates
-            if any(bad in lower for bad in banned_phrases):
+            if any(bad in sentence.lower() for bad in banned_phrases):
                 continue
 
-            # Detect repeated structures
             structure = normalize_structure(sentence)
-
             if structure in used_structures:
                 continue
-
             used_structures.add(structure)
 
-            # Replace idiom with blank
-            sentence = re.sub(
-                re.escape(idiom),
-                "_____",
-                sentence,
-                flags=re.IGNORECASE
-            )
-
+            sentence = re.sub(re.escape(idiom), "_____", sentence, flags=re.IGNORECASE)
             return sentence
 
         except Exception:
             continue
+#    subjects = [
+#        "My boss", "The kids", "A stranger", "Our team",
+#        "The company", "Her friend", "The teacher",
+#        "Someone", "People", "The situation"
+#    ]
+
+#    tones = [
+#        "casual", "professional", "funny",
+#        "dramatic", "everyday"
+#    ]
+
+#    banned_phrases = [
+#        "i decided",
+#        "he decided",
+#        "she decided",
+#        "decided to"
+#    ]
+
+#    for _ in range(8):
+
+#        try:
+
+#            subject = random.choice(subjects)
+#            tone = random.choice(tones)
+
+#            prompt = f"""
+#            Write one natural {tone} English sentence using the idiom "{idiom}".
+#            Use "{subject}" as the subject.
+#            Make it conversational and realistic.
+#            """
+
+#            result = generator(
+#                prompt,
+#                max_new_tokens=25,
+#                do_sample=True,
+#                temperature=1.0,
+#                top_k=50,
+#                top_p=0.95,
+#                repetition_penalty=1.2,
+#                truncation=True
+#            )
+
+#            sentence = result[0]["generated_text"]
+#            sentence = sentence.replace(prompt, "").strip()
+
+            # Basic validation
+#            if not sentence:
+#                continue
+
+#            if len(sentence.split()) < 5:
+#                continue
+
+#            if idiom.lower() not in sentence.lower():
+#                continue
+
+#            lower = sentence.lower()
+
+            # Reject repetitive templates
+#            if any(bad in lower for bad in banned_phrases):
+#                continue
+
+            # Detect repeated structures
+#            structure = normalize_structure(sentence)
+
+#            if structure in used_structures:
+#                continue
+
+#            used_structures.add(structure)
+
+            # Replace idiom with blank
+#            sentence = re.sub(
+#                re.escape(idiom),
+#                "_____",
+#                sentence,
+#                flags=re.IGNORECASE
+#            )
+
+#            return sentence
+
+#        except Exception:
+#            continue
 
     # ---------- FALLBACK TO DATASET ----------
     #examples = examples_map.get(idiom.lower(), [])
