@@ -526,7 +526,7 @@ def generate_adaptive_quiz(
     random.shuffle(available)
 
     t0 = time.time()
-    for idiom in available[:max_attempts]:
+    for idiom in available[:max_ai_attempts]:
         sentence = generate_ai_sentence(idiom, examples_map, used_structures)
         if not sentence:
             continue
