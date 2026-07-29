@@ -320,10 +320,13 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
     tokenizer, model = load_generator()
 
     banned_phrases = [
-        "i decided",
-        "he decided",
-        "she decided",
-        "decided to"
+        "i decided", "he decided", "she decided", "decided to"
+    ]
+
+    leakage_phrases = [
+        "keep the idiom", "exactly unchanged", "paraphrase",
+        "rules:", "do not explain", "return only one sentence",
+        "keep the same meaning", "following sentence"
     ]
 
     examples = examples_map.get(normalize_idiom(idiom), [])
@@ -333,19 +336,16 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
         return None
 
     random.shuffle(candidates)
-
     idiom_pattern = re.compile(r"\b" + re.escape(idiom) + r"\b", re.IGNORECASE)
 
     for base_sentence in candidates:
         try:
             prompt = f"""Paraphrase the following sentence.
-
 Rules:
 - Keep the idiom "{idiom}" exactly unchanged.
 - Keep the same meaning.
 - Return only one sentence.
 - Do not explain anything.
-
 Sentence:
 {base_sentence}"""
 
@@ -360,11 +360,15 @@ Sentence:
             )
             sentence = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
-            if not sentence or len(sentence.split()) < 5:
+            if not sentence or len(sentence.split()) < 8:
+                continue
+            if len(sentence.split()) < len(base_sentence.split()) * 0.6:
                 continue
             if not idiom_pattern.search(sentence):
                 continue
             if sentence.strip().lower() == base_sentence.strip().lower():
+                continue
+            if any(leak in sentence.lower() for leak in leakage_phrases):
                 continue
 
             structure = normalize_structure(sentence)
@@ -377,123 +381,23 @@ Sentence:
 
         except Exception:
             continue
-#    subjects = [
-#        "My boss", "The kids", "A stranger", "Our team",
-#        "The company", "Her friend", "The teacher",
-#        "Someone", "People", "The situation"
-#    ]
-
-#    tones = [
-#        "casual", "professional", "funny",
-#        "dramatic", "everyday"
-#    ]
-
-#    banned_phrases = [
-#        "i decided",
-#        "he decided",
-#        "she decided",
-#        "decided to"
-#    ]
-
-#    for _ in range(8):
-
-#        try:
-
-#            subject = random.choice(subjects)
-#            tone = random.choice(tones)
-
-#            prompt = f"""
-#            Write one natural {tone} English sentence using the idiom "{idiom}".
-#            Use "{subject}" as the subject.
-#            Make it conversational and realistic.
-#            """
-
-#            result = generator(
-#                prompt,
-#                max_new_tokens=25,
-#                do_sample=True,
-#                temperature=1.0,
-#                top_k=50,
-#                top_p=0.95,
-#                repetition_penalty=1.2,
-#                truncation=True
-#            )
-
-#            sentence = result[0]["generated_text"]
-#            sentence = sentence.replace(prompt, "").strip()
-
-            # Basic validation
-#            if not sentence:
-#                continue
-
-#            if len(sentence.split()) < 5:
-#                continue
-
-#            if idiom.lower() not in sentence.lower():
-#                continue
-
-#            lower = sentence.lower()
-
-            # Reject repetitive templates
-#            if any(bad in lower for bad in banned_phrases):
-#                continue
-
-            # Detect repeated structures
-#            structure = normalize_structure(sentence)
-
-#            if structure in used_structures:
-#                continue
-
-#            used_structures.add(structure)
-
-            # Replace idiom with blank
-#            sentence = re.sub(
-#                re.escape(idiom),
-#                "_____",
-#                sentence,
-#                flags=re.IGNORECASE
-#            )
-
-#            return sentence
-
-#        except Exception:
-#            continue
 
     # ---------- FALLBACK TO DATASET ----------
-    #examples = examples_map.get(idiom.lower(), [])
     examples = examples_map.get(normalize_idiom(idiom), [])
     valid_examples = []
-
     for ex in examples:
         text = ex.get("en", "")
-
-        if idiom.lower() in text.lower():
-
-            lower = text.lower()
-
-            if any(bad in lower for bad in banned_phrases):
+        if idiom_pattern.search(text):
+            if any(bad in text.lower() for bad in banned_phrases):
                 continue
-
             structure = normalize_structure(text)
-
             if structure not in used_structures:
                 valid_examples.append(text)
 
     if valid_examples:
-
         sentence = random.choice(valid_examples)
-
-        used_structures.add(
-            normalize_structure(sentence)
-        )
-
-        sentence = re.sub(
-            re.escape(idiom),
-            "_____",
-            sentence,
-            flags=re.IGNORECASE
-        )
-
+        used_structures.add(normalize_structure(sentence))
+        sentence = idiom_pattern.sub("_____", sentence)
         return sentence
 
     return None
