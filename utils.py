@@ -315,38 +315,52 @@ def normalize_structure(sentence):
 def generate_ai_sentence(idiom, examples_map, used_structures):
     tokenizer, model = load_generator()
 
-    subjects = ["My boss", "The kids", "A stranger", "Our team", "The company",
-                "Her friend", "The teacher", "Someone", "People", "The situation"]
-    tones = ["casual", "professional", "funny", "dramatic", "everyday"]
-    banned_phrases = ["i decided", "he decided", "she decided", "decided to"]
+    banned_phrases = [
+        "i decided",
+        "he decided",
+        "she decided",
+        "decided to"
+    ]
 
-    for _ in range(4):  # retries needed
+    examples = examples_map.get(normalize_idiom(idiom), [])
+    candidates = [ex["en"] for ex in examples if ex.get("en")]
+
+    if not candidates:
+        return None
+
+    random.shuffle(candidates)
+
+    idiom_pattern = re.compile(r"\b" + re.escape(idiom) + r"\b", re.IGNORECASE)
+
+    for base_sentence in candidates:
         try:
-            subject = random.choice(subjects)
-            tone = random.choice(tones)
+            prompt = f"""Paraphrase the following sentence.
 
-            prompt = (
-                f'Write one natural {tone} English sentence using the idiom "{idiom}". '
-                f'Use "{subject}" as the subject. Make it conversational and realistic.'
-            )
+Rules:
+- Keep the idiom "{idiom}" exactly unchanged.
+- Keep the same meaning.
+- Return only one sentence.
+- Do not explain anything.
+
+Sentence:
+{base_sentence}"""
 
             inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=40,
+                max_new_tokens=50,
                 do_sample=True,
-                temperature=1.0,
-                top_k=50,
-                top_p=0.95,
+                temperature=0.7,
+                top_p=0.9,
                 repetition_penalty=1.2,
             )
             sentence = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
             if not sentence or len(sentence.split()) < 5:
                 continue
-            if idiom.lower() not in sentence.lower():
+            if not idiom_pattern.search(sentence):
                 continue
-            if any(bad in sentence.lower() for bad in banned_phrases):
+            if sentence.strip().lower() == base_sentence.strip().lower():
                 continue
 
             structure = normalize_structure(sentence)
@@ -354,7 +368,7 @@ def generate_ai_sentence(idiom, examples_map, used_structures):
                 continue
             used_structures.add(structure)
 
-            sentence = re.sub(re.escape(idiom), "_____", sentence, flags=re.IGNORECASE)
+            sentence = idiom_pattern.sub("_____", sentence)
             return sentence
 
         except Exception:
