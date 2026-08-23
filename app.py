@@ -59,6 +59,10 @@ if mode == "Explore Idioms":
         st.subheader("Natural Spanish Meaning")
         st.write(idiom_map[selected]["meaning"])
 
+        st.subheader("English Meaning")
+        st.write(idiom_map[selected].get("english_meaning", "Not available"))
+
+
         st.subheader("Literal Translation")
         st.write(translate_literal(selected))
 
@@ -72,9 +76,17 @@ if mode == "Explore Idioms":
         else:
             st.write("No examples found.")
 
+        
         st.subheader("Audio")
-        audio_file = generate_audio(selected)
-        st.audio(audio_file)
+        st.write("English Idiom")
+        audio_en = generate_audio(selected, lang="en")
+        st.audio(audio_en)
+
+        st.write("Spanish Equivalent")
+        audio_es = generate_audio(idiom_map[selected]["meaning"], lang="es")
+        st.audio(audio_es)
+        #audio_file = generate_audio(selected)
+        #st.audio(audio_file)
 
         if st.button("⭐ Add to Favorites"):
             add_favorite(conn, selected)
@@ -111,6 +123,7 @@ elif mode == "Idioms in sentences":
             for idiom in found:
                 with st.expander(f"🔹 {idiom}"):
                     st.write("**Meaning:**", idiom_map[idiom]["meaning"])
+                    st.write("**English Meaning:**", idiom_map[idiom].get("english_meaning", "Not available"))
                     st.caption(f"Topic: {idiom_map[idiom].get('topic', 'General')}")
                     st.write("**Literal Translation:**", translate_literal(idiom))
 
@@ -124,9 +137,15 @@ elif mode == "Idioms in sentences":
                         st.write("No examples available.")
 
                     # Audio
-                    audio_file = generate_audio(idiom)
-                    st.audio(audio_file)
-
+                    #audio_file = generate_audio(idiom)
+                    #st.audio(audio_file)
+                    st.write("English Idiom")
+                    audio_en = generate_audio(idiom, lang="en")
+                    st.audio(audio_en)
+                    
+                    st.write("Spanish Equivalent")
+                    audio_es = generate_audio(idiom_map[idiom]["meaning"], lang="es")
+                    st.audio(audio_es)
                     # Practice button
                     if st.button(f"Practice '{idiom}'"):
                         st.session_state.quiz = generate_adaptive_quiz(
