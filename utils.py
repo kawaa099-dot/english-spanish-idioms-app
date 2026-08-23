@@ -7,6 +7,7 @@ from transformers import MarianMTModel, MarianTokenizer
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 import pathlib
+import hashlib
 import streamlit as st
 import random
 from functools import lru_cache
@@ -38,7 +39,8 @@ def load_idioms(path="idiom2.json"):
         cleaned[normalize_idiom(idiom)] = {
             "meaning": info.get("meaning", ""),
             "topic": info.get("topic", "General"),
-            "gloss": info.get("gloss", "")   # ← add this line
+            "gloss": info.get("gloss", ""), 
+            "english_meaning": info.get("english_meaning", "") 
         }
 
     return cleaned
@@ -49,7 +51,7 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 @st.cache_data
 def generate_audio(text, lang="en"):
-    safe_text = text.replace(" ", "_")
+    safe_text = hashlib.md5(f"{text}_{lang}".encode("utf-8")).hexdigest()
     file_path = CACHE_DIR / f"{safe_text}.mp3"
 
     if not file_path.exists():
@@ -455,5 +457,3 @@ def generate_adaptive_quiz(
     used_questions.clear()
     used_structures.clear()
     return None
-    
-    
