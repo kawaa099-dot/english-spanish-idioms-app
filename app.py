@@ -3,7 +3,7 @@ import uuid
 
 from utils import (
     load_idioms, generate_audio, init_db, add_favorite, get_favorite,
-    detect_idioms, translate_literal, normalize_idiom, build_examples_map, remove_favorite,
+    detect_idioms, lemmatize_word, translate_literal, normalize_idiom, build_examples_map, remove_favorite,
     generate_adaptive_quiz, update_analytics, get_learning_stats, detect_idioms_ai
 )
 
@@ -99,10 +99,11 @@ elif mode == "Idioms in sentences":
     text = st.text_area("Write your text:")
 
     if st.button("Detect"):
-        found = detect_idioms(text, idioms)
+        found, spans = detect_idioms(text, idioms) #add spans
         # use AI if no matching idioms
         if not found:
             found = detect_idioms_ai(text, idiom_map)
+            spans = {idiom: idiom for idiom in found}
 
         if not found:
             st.info("No idioms detected.")
@@ -111,8 +112,9 @@ elif mode == "Idioms in sentences":
             # Highlight detected idioms in the text
             highlighted_text = text
             for idiom in found:
+                matched_text = spans.get(idiom, idiom) #instead idiom
                 highlighted_text = highlighted_text.replace(
-                    idiom,
+                    matched_text,
                     f"<span style='background-color: #FFAB91; font-weight:bold'>{idiom}</span>"
                 )
             st.markdown("### Your Text with Detected Idioms")
