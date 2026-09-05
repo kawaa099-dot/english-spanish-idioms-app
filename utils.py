@@ -12,6 +12,7 @@ import streamlit as st
 import random
 from functools import lru_cache
 from transformers import pipeline
+from lemminflect import getLemma
 import re
 
 def normalize_idiom(text):
@@ -247,7 +248,7 @@ def _get_idiom_meaning_embeddings(idiom_map_tuple):
     embeddings = model.encode(meanings, convert_to_tensor=True)
     return idioms, embeddings
 # DETECT IDIOMS
-def detect_idioms_ai(text, idiom_map, threshold=0.5):
+def detect_idioms_ai(text, idiom_map, threshold=0.3):
     model = load_similarity_model()
 
     idiom_map_tuple = tuple(
@@ -268,9 +269,34 @@ def detect_idioms_ai(text, idiom_map, threshold=0.5):
 
     return [idioms[best_idx]]
 
+def lemmatize_word(word):
+    lemmas = getLemma(word, upos='VERB')
+    return lemmas[0] if lemmas else word
+
 def detect_idioms(text, idioms):
-    text_lower = text.lower()
-    return [i for i in idioms if i.lower() in text_lower]
+    tokens = list(re.finditer(r"\b\w+\b", text))
+    text_words = [t.group().lower() for t in tokens]
+    text_lemmas = [lemmatize_word(w) for w in text_words]
+
+    found = []
+    spans = {}
+
+    for idiom in idioms:
+        idiom_words = idiom.lower().split()
+        idiom_lemmas = [lemmatize_word(w) for w in idiom_words]
+        n = len(idiom_lemmas)
+
+        for i in range(len(text_lemmas) - n + 1):
+            if text_lemmas[i:i+n] == idiom_lemmas:
+                found.append(idiom)
+                start = tokens[i].start()
+                end = tokens[i + n - 1].end()
+                spans[idiom] = text[start:end]
+                break
+
+    return found, spans
+    #text_lower = text.lower()
+    #return [i for i in idioms if i.lower() in text_lower]
 
 #def detect_idioms_ai(text, idiom_map, top_k=3, threshold=0.35):
  #   model = load_similarity_model()
@@ -404,9 +430,31 @@ Sentence:
 
     return None
 
-def generate_distractors(correct_idiom, all_idioms):
-    pool = [i for i in all_idioms if i != correct_idiom]
-    distractors = random.sample(pool, min(3, len(pool)))
+#def generate_distractors(correct_idiom, all_idioms):
+#    pool = [i for i in all_idioms if i != correct_idiom]
+#    distractors = random.sample(pool, min(3, len(pool)))
+#    options = distractors + [correct_idiom]
+#    random.shuffle(options)
+#    return options
+def generate_distractors(correct_idiom, idiom_map, n=3):
+    correct_topic = idiom_map[correct_idiom].get("topic", "General")
+
+    same_topic_pool = [
+        i for i in idiom_map
+        if i != correct_idiom and idiom_map[i].get("topic", "General") == correct_topic
+    ]
+    other_pool = [
+        i for i in idiom_map
+        if i != correct_idiom and idiom_map[i].get("topic", "General") != correct_topic
+    ]
+
+    random.shuffle(same_topic_pool)
+    random.shuffle(other_pool)
+
+    distractors = same_topic_pool[:n]
+    if len(distractors) < n:
+        distractors += other_pool[: n - len(distractors)]
+
     options = distractors + [correct_idiom]
     random.shuffle(options)
     return options
@@ -442,10 +490,11 @@ def generate_adaptive_quiz(
             continue
 
         used_questions.add(idiom)
-        wrong_pool = [i for i in idioms if i != idiom]
-        wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
-        options = wrong_options + [idiom]
-        random.shuffle(options)
+        #wrong_pool = [i for i in idioms if i != idiom]
+        #wrong_options = random.sample(wrong_pool, min(3, len(wrong_pool)))
+        #options = wrong_options + [idiom]
+        #random.shuffle(options)
+        options = generate_distractors(idiom, idiom_map)
         print(f"[TIMING] question generated: {time.time() - t0:.2f}s")
         return {
             "question": sentence,
